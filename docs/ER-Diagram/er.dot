@@ -1,0 +1,55 @@
+graph G {
+	edge[len = 1.6]
+
+	{ node [shape=box,style=filled]
+		User
+		Collection
+		Song
+		Album
+		Artist
+	}
+	{ node [shape=diamond height=0.15 width=0.20 label=""]
+		User -- owns -- Collection
+		User -- played -- Song
+		User -- follows -- User
+		Artist -- releases -- Album
+		Album -- contains -- Song
+		Collection -- collects -- Song
+		Artist -- wrote -- Song
+	}
+
+	User -- uid
+	User -- name
+	name -- first
+	name -- last
+	User -- email
+	User -- last_login
+	User -- username
+	User -- password
+
+	Collection -- cid
+	{ node[label="name"] Collection -- collection_name }
+	{ node [style="dotted"]
+		Collection -- total_length
+		Collection -- no_songs
+	}
+
+	Song -- sid
+	Song -- release_date
+	Song -- genre
+	Song -- length
+	Song -- title
+
+	Album -- aid
+	{ node[label="name"] Album -- album_name }
+	{ node[label="release_date"] Album -- album_release_date }
+	{ node [style="dotted"]
+		{ node[label="genre"] Album -- album_genre }
+	}
+
+	{ node[label="name"] Artist -- artist_name }
+	{ node[label="aid"] Artist -- artist_aid }
+
+	played -- "timestamp"
+	contains -- "track_no"
+}
