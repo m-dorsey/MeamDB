@@ -28,9 +28,83 @@ Student 4 tts1848: Emi Simpson\\
 
     \section{Design}
     \subsection{Conceptual Model}
-    Use this section to include your EER diagram and describe any consideration made during its design.
+    Use this section to include your ER diagram and describe any consideration made during its design.
+    \\~\\
+    For our ER diagram, we first decided to have five entity types:
+    Artist, Song, Collection, Album, and User. We gave entity type User the attributes
+    username, password, composite attribute name (first\_name, last\_name), email, and
+    last\_login. The email and username will have the restriction that it must be unique
+    for each user. The key for User will be a uid that is generated when a new user is
+    created. The uid will allow users to update their name, email, and password without
+    changing the key.
+    \\~\\
+    We gave the Artist the attributes name, and the key artist\_id that
+    will be generated when an artist is created. This will allow artists to change their
+    name (like Prince) should they choose or have any legal issues with their label. The
+    name will have the restriction that it must be unique to the artist.
+    \\~\\
+    The Album entity type has the attributes name and release\_date, and the
+    genre that will be derived based on the artist(s) who made it. The genre will be
+    multivalued as well, as many albums or artists can span multiple genres. The key
+    attribute will be an album\_id generated when an album is created. This allows albums
+    with the same name and albums with multiple artists.
+    \\~\\
+    In our design, Song has title, length, genre, release\_date. We will
+    generate a sid to be the key attribute to allow us to distinguish between songs with
+    the same name, length, artist and release\_date.
+    \\~\\
+    Each Collection has a name and key attribute cid. We will calculate
+    the no\_songs and total\_length based on the songs that are placed in the collection.
+
+
+
+
+
+%    The user has a N:M relationship with itself, “follows.” Users can follow 0 to many other users or be followed by 0 to many users.
+%
+%    Users will have an N:M relationship with songs, “listens to.” Users can listen to 0 to many songs and songs can be listened to by 0 to many users. The relationship has the attribute “timestamp,” which we will use to keep track of how often a user listens to a given song.
+%
+%    Songs have an N:M relationship with collections. A song can be on 0 to many collections, and a collection must have at least one song.
+%
+%    Songs have a N:M relationship with albums. A song can be on 1 or more albums, and an album must have at least one song. For this database, we are considering singles to be albums with one song, and albums can have multiple artists. The relationship has an attribute “track_no” which will be used to keep track of the order of songs on an album.
+%
+%    Artists have an N:M relationship with albums. An artist can have 0 to many albums and an album must have at least 1 artist.
+%
+%    Users have a N:M relationship with collections. A user can make 0 to many collections, and a collection can be made by 1 to many users.
+%
+%    Artists have an N:M relationship with songs. A song can be made by at least one artist and an artist can have 0 to many songs.
+%
+
     \subsection{Reduction to tables}
     Include in this section the reduction of your EER diagram to tables and explain how each entity type and relationship type have been converted.
+
+    \begin{itemize}
+        \item Album( \underline{album\_id}, name, release\_date )
+        \item Artist( \underline{artist\_id}, name )
+        \item Song( \underline{sid}, length, title, genre, release\_date, total\_plays)
+        \item User( \underline{uid}, username, password, fname, lname, email, last\_login, number\_collection, creation\_date)
+        \item Collection( \underline{cid}, name, \underline{ \emph{uid} } )
+        \item Album\_Song( \underline{ \emph{album\_id} }, \underline{ \emph{sid} }, track\_number)
+        \item Album\_Artist( \underline{ \emph{album\_id} }, \underline{ \emph{artist\_id} })
+        \item Song\_Artist( \underline{ \emph{sid} }, \underline{ \emph{artist\_id} })
+        \item Song\_Collection( \underline{ \emph{sid} }, \underline{ \emph{cid} } )
+        \item Follower( \underline{ \emph{follower} }, \underline{ \emph{followed} } )
+        \item Play( \underline{ \emph{uid} }, \underline{ \emph{sid} }, last\_time\_listened)
+    \end{itemize}
+    \\~\\
+    We created separate tables (Album, Artist, Song, Collection, User) for each of our
+    entities and used foreign keys to represent the relationships between the different entities.
+    \begin{itemize}
+        \item Album Entity Type: The relationship between the Album entity type and other entity types such as Song and Artist is represented by creating new tables like Album\_Song and Album\_Artist that have the album\_id key attribute as a foreign key. This allows the Song and Artist entities to be directly related to the Album.
+        \item Artist Entity Type: The Artist entity type is related to the Song entity type through a new table Song\_Artist that utilizes the artist\_id as a foreign key similar to how the Artist is also related to the Album through the Album\_Artist table.
+        \item Song Entity Type: The Artist, Album, and Collection entities are related to the Song entity through the Album\_Song, Song\_Artist and Song\_Collection tables that all use the song\_id attribute to distinguish how they relate with the Song entity.
+        \item Collection Entity Type: The relationship between the Collection entity type to the User entity is made by enforcing the user\_id attribute as a foreign key when creating a new Collection. Additionally, Song\_Collection is related to the Collection entity by using a collection\_id foreign key at the moment of creation.
+        \item User Entity Type: The User is related to the Collection entity through their user\_id which will then keep track of all of their albums, songs, and artists in a created collection
+    \end{itemize}
+%
+%
+%
+%
     \subsection{Data Requirements/Constraints}
     Use this section to list all the data domains and constraints that cannot be captured in your EER diagram but must be enforced by the database system. For example, there may be attribute types with a restricted domain, you must list those attribute types here and their domains. Similarly, attribute types with restrictions like uniqueness or required must be also listed here.
     \subsection{Sample instance data}
