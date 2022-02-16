@@ -58,23 +58,6 @@ Student 4 tts1848: Emi Simpson\\
 
 
 
-
-
-%    The user has a N:M relationship with itself, “follows.” Users can follow 0 to many other users or be followed by 0 to many users.
-%
-%    Users will have an N:M relationship with songs, “listens to.” Users can listen to 0 to many songs and songs can be listened to by 0 to many users. The relationship has the attribute “timestamp,” which we will use to keep track of how often a user listens to a given song.
-%
-%    Songs have an N:M relationship with collections. A song can be on 0 to many collections, and a collection must have at least one song.
-%
-%    Songs have a N:M relationship with albums. A song can be on 1 or more albums, and an album must have at least one song. For this database, we are considering singles to be albums with one song, and albums can have multiple artists. The relationship has an attribute “track_no” which will be used to keep track of the order of songs on an album.
-%
-%    Artists have an N:M relationship with albums. An artist can have 0 to many albums and an album must have at least 1 artist.
-%
-%    Users have a N:M relationship with collections. A user can make 0 to many collections, and a collection can be made by 1 to many users.
-%
-%    Artists have an N:M relationship with songs. A song can be made by at least one artist and an artist can have 0 to many songs.
-%
-
     \subsection{Reduction to tables}
     Include in this section the reduction of your EER diagram to tables and explain how each entity type and relationship type have been converted.
 
@@ -97,9 +80,23 @@ Student 4 tts1848: Emi Simpson\\
     \begin{itemize}
         \item Album Entity Type: The relationship between the Album entity type and other entity types such as Song and Artist is represented by creating new tables like Album\_Song and Album\_Artist that have the album\_id key attribute as a foreign key. This allows the Song and Artist entities to be directly related to the Album.
         \item Artist Entity Type: The Artist entity type is related to the Song entity type through a new table Song\_Artist that utilizes the artist\_id as a foreign key similar to how the Artist is also related to the Album through the Album\_Artist table.
-        \item Song Entity Type: The Artist, Album, and Collection entities are related to the Song entity through the Album\_Song, Song\_Artist and Song\_Collection tables that all use the song\_id attribute to distinguish how they relate with the Song entity.
-        \item Collection Entity Type: The relationship between the Collection entity type to the User entity is made by enforcing the user\_id attribute as a foreign key when creating a new Collection. Additionally, Song\_Collection is related to the Collection entity by using a collection\_id foreign key at the moment of creation.
+            \begin{itemize}
+                \item Artists have an N:M relationship with albums. An artist can have 0 to many albums and an album must have at least 1 artist.
+                \item Artists have an N:M relationship with songs. A song can be made by at least one artist and an artist can have 0 to many songs.
+
+            \end{itemize}
+                \item Song Entity Type: The Artist, Album, and Collection entities are related to the Song entity through the Album\_Song, Song\_Artist and Song\_Collection tables that all use the song\_id attribute to distinguish how they relate with the Song entity.
+            \begin{itemize}
+                \item Songs have an N:M relationship with collections. A song can be on 0 to many collections, and a collection must have at least one song.
+                \item Songs have a N:M relationship with albums. A song can be on 1 or more albums, and an album must have at least one song. For this database, we are considering singles to be albums with one song, and albums can have multiple artists. The relationship has an attribute \“track\_no\” which will be used to keep track of the order of songs on an album.
+            \end{itemize}
+                \item Collection Entity Type: The relationship between the Collection entity type to the User entity is made by enforcing the user\_id attribute as a foreign key when creating a new Collection. Additionally, Song\_Collection is related to the Collection entity by using a collection\_id foreign key at the moment of creation.
         \item User Entity Type: The User is related to the Collection entity through their user\_id which will then keep track of all of their albums, songs, and artists in a created collection
+            \begin{itemize}
+                \item Users have a N:M relationship with collections. A user can make 0 to many collections, and a collection can be made by 1 to many users.
+                \item The user has a N:M relationship with itself, called \“follows.\” Users can follow 0 to many other users or be followed by 0 to many users.
+                \item Users will have an N:M relationship with songs, \“listens to.\” Users can listen to 0 to many songs and songs can be listened to by 0 to many users. The relationship has the attribute \“timestamp,\” which we will use to keep track of how often a user listens to a given song.
+            \end{itemize}
     \end{itemize}
 %
 %
