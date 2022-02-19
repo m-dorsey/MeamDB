@@ -1,6 +1,10 @@
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{tasks}
+\usepackage[table]{xcolor}
+\definecolor{tablegrey}{rgb}{0.9,0.9,0.9}
+\graphicspath{ {images/} }
 \title{MeamDB}
 
 \date{\today}
@@ -28,7 +32,23 @@ Student 4 tts1848: Emi Simpson\\
 
     \section{Design}
     \subsection{Conceptual Model}
-    Use this section to include your ER diagram and describe any consideration made during its design.
+    While our ER Diagram will list an 'id' attribute for each of our entity types,
+    in order to distinguish between these unique keys in relationship tables, the
+    following will apply to all entity identifiers:
+    \\~\\
+    \begin{tasks}
+        \task Album: album\_id
+        \task Artist: artist\_id
+        \task Song: sid
+        \task User: uid
+        \task Collection: cid
+    \end{tasks}
+    \\~\\
+
+    \includegraphics[width=5.5in]{ER-Diagram.png}
+    \caption{MeamDB ER Diagram showing entities and relationships}
+    \label{ER Diagram}
+
     \\~\\
     For our ER diagram, we first decided to have five entity types:
     Artist, Song, Collection, Album, and User. We gave entity type User the attributes
@@ -59,7 +79,6 @@ Student 4 tts1848: Emi Simpson\\
 
 
     \subsection{Reduction to tables}
-    Include in this section the reduction of your EER diagram to tables and explain how each entity type and relationship type have been converted.
 
     \begin{itemize}
         \item Album( \underline{album\_id}, name, release\_date )
@@ -103,11 +122,245 @@ Student 4 tts1848: Emi Simpson\\
 %
 %
     \subsection{Data Requirements/Constraints}
-    Use this section to list all the data domains and constraints that cannot be captured in your EER diagram but must be enforced by the database system. For example, there may be attribute types with a restricted domain, you must list those attribute types here and their domains. Similarly, attribute types with restrictions like uniqueness or required must be also listed here.
-    \subsection{Sample instance data}
-    Use this section to include sample of entities for every entity type in your EER diagram. Include also sample of relationships for every relationship type. For example, assume you have an entity type \emph{Course} in your EER diagram with the attribute types \emph{ID} and \emph{name}. A sample of a \emph{Course} entity can be \emph{CSCI320, Principles of Data Management}.\\
+    In the Follower relationship table, both of the foreign keys, follower and followed, reference the User's uid. These 2 uid fields cannot be the same because the User is not allowed to follow themselves.
 
-    Include 5 samples for every entity type and relationship type.
+    \subsection{Sample instance data}
+
+    \\~\\
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{3}{|c|}{Album} \\
+            \hline
+            \underline{album\_id} &name &release\_date \\
+            \hline
+            1 & The Praxis of Prophalaxis & 2020-04-17 \\
+            \hline
+            2 & Welcome to Hell & 2018-07-27 \\
+            \hline
+            3 & Database & 2020-01-28 \\
+            \hline
+            4 & LP3 & 2020-02-04 \\
+            \hline
+            5 & A Night at The Opera & 1975-11-06 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{2}{|c|}{Artist} \\
+            \hline
+            \underline{artist\_id} &name \\
+            \hline
+            1 & Vermicide Violence \\
+            \hline
+            2 & Mono Inc. \\
+            \hline
+            3 & Naked Lungs \\
+            \hline
+            4 & Hippo Campus \\
+            \hline
+            5 & Queen \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{5}{|c|}{Song} \\
+            \hline
+            \underline{sid} & length & title & genre & release\_date \\
+            \hline
+            1 & 2:49 & Database & Hip/Hop & 2021-01-28 \\
+            \hline
+            2 & 3:38 & Coronaviserated & Screamo & 2020-03-20 \\
+            \hline
+            3 & 5:55 & Bohemian Rhapsody & Rock & 1975-11-06 \\
+            \hline
+            4 & 4:12 & A Vagabond's Life & Symphonic Metal & 2018-07-27 \\
+            \hline
+            5 & 2:54 & Bang Bang & Alternative & 2022-02-04 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{table}
+        \scriptsize
+        \begin{center}
+            \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+                \hline
+                \rowcolor{tablegrey} \multicolumn{9}{|c|}{User} \\
+                \hline
+                \underline{uid} & username & password & fname & lname & email & last\_login & number\_collection & creation\_date \\
+                \hline
+                1 & UserFolk & 123456 & John & Doe & jdoe@gmail.com & 2022-02-18 & 2 & 2022-02-18\\
+                \hline
+                2 & BobbyS & password123 & Bob & Smith & bsmith@aol.com & 2022-02-16 & 3 & 2022-01-01 \\
+                \hline
+            \end{tabular}
+        \end{center}
+    \end{table}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{3}{|c|}{Collection} \\
+            \hline
+            \underline{cid} & name & \underline{ \emph{uid} } \\
+            \hline
+            1 & Bangers & 1 \\
+            \hline
+            2 & Sad Hours & 1 \\
+            \hline
+            3 & Super Sad Boi Hours & 2 \\
+            \hline
+            4 & Angry Super Bowl Music & 2 \\
+            \hline
+            5 & Bath Time Breather & 2 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{3}{|c|}{Album\_Song} \\
+            \hline
+            \underline{ \emph{album\_id} } & \underline{ \emph{sid} } & track\_number \\
+            \hline
+            5 & 3 & 11 \\
+            \hline
+            3 & 1 & 1 \\
+            \hline
+            1 & 2 & 1 \\
+            \hline
+            2 & 4 & 7 \\
+            \hline
+            4 & 5 & 4 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{2}{|c|}{Album\_Artist} \\
+            \hline
+            \underline{cid} & name \\
+            \hline
+            1 & 1 \\
+            \hline
+            2 & 2 \\
+            \hline
+            3 & 3 \\
+            \hline
+            4 & 4 \\
+            \hline
+            5 & 5 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{2}{|c|}{Song\_Artist} \\
+            \hline
+            \underline{ \emph{sid} } & \underline{ \emph{artist\_id} } \\
+            \hline
+            1 & 3 \\
+            \hline
+            2 & 1 \\
+            \hline
+            3 & 5 \\
+            \hline
+            4 & 2 \\
+            \hline
+            5 & 5 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{2}{|c|}{Song\_Collection} \\
+            \hline
+            \underline{ \emph{sid} } & \underline{ \emph{cid} } \\
+            \hline
+            1 & 1 \\
+            \hline
+            3 & 3 \\
+            \hline
+            2 & 4 \\
+            \hline
+            4 & 2 \\
+            \hline
+            5 & 5 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{2}{|c|}{Follower} \\
+            \hline
+            \underline{ \emph{Follower} } & \underline{ \emph{Followed} } \\
+            \hline
+            1 & 2 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \\~\\
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{3}{|c|}{Plays} \\
+            \hline
+            \underline{ \emph{uid} } & \underline{ \emph{sid} } & timestamp \\
+            \hline
+            1 & 1 & 2020-02-29 03:00:00.000 \\
+            \hline
+            1 & 1 & 2020-02-29 03:02:49.600 \\
+            \hline
+            1 & 2 & 2020-02-29 03:05:01.205 \\
+            \hline
+            2 & 5 & 2020-02-18 13:02:00.345 \\
+            \hline
+            2 & 3 & 2020-02-18 13:04:12.102 \\
+            \hline
+            2 & 1 & 2020-02-18 13:07:18.000 \\
+            \hline
+            2 & 5 & 2020-02-18 13:09:42.090 \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+
 
     \section{Implementation}
     Use this section to describe the overall implementation of your database. Include samples of SQL statements to create the tables (DDL statements) and a description of the ETL process, including examples of the SQL insert statements used to populate each table initially.
@@ -171,7 +424,8 @@ Student 4 tts1848: Emi Simpson\\
 
     \begin{figure}[htb]
         \begin{center}
-            \includegraphics[width=1.5in]{images/fly.jpg}
+
+            \includegraphics[width=1.5in]{fly.jpg}
             \caption{A sample black \& white graphic (JPG).}
             \label{SAMPLE FIGURE}
         \end{center}
