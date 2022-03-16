@@ -2,9 +2,7 @@ package MeamDB;
 
 import com.jcraft.jsch.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 import java.util.Scanner;
@@ -16,10 +14,8 @@ public class Main {
      *
      * @return true if valid login, false if the user gives up on logging in.
      */
-    private static boolean login(){
-        //FIXME I feel like having 2 scanners will cause problems.
-        // we'll see. Probably want to keep an eye out tho.
-        Scanner scan = new Scanner(System.in);
+    private static boolean login( Connection conn, Scanner scan ){
+
         String username = "";
         String password = "";
 
@@ -30,22 +26,46 @@ public class Main {
             System.out.println("input the password for the account.");
             password = scan.nextLine();
 
+
+            try {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = " + username);
+
+                while (rs.next()) {
+                    if( rs.getString(password).equals(password)){
+                        //valid login. the username matches the password
+                        validLogin = true;
+                        break;
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
             //now we check to see if this is valid credentials.
             //if so, we allow them in.
             //if not, then the following statement executes.
-            System.out.println("invalid login. 'y' to try again. anything else to exit.");
-            String input = scan.nextLine();
-            input = input.toLowerCase();
-            if( input.equals("y")){
-                //we go through the loop again all easy like
-            }else{
-                return false;
+            if( !validLogin ) {
+                System.out.println("invalid login. 'y' to try again. anything else to exit.");
+                String input = scan.nextLine();
+                input = input.toLowerCase();
+                if (input.equals("y")) {
+                    //we go through the loop again all easy like
+                } else {
+                    return false;
+                }
             }
         }
 
         //FIXME probably want to actually return a string or string away
         // with the proper data to do things in the rest of the program.
         return true;
+    }
+
+
+    private static boolean createNewAccount( Connection conn ){
+
     }
 
 
@@ -120,7 +140,7 @@ public class Main {
                 //TODO we probably want to have a function for each command
                 if (input.equals("login")) {
                     //in here, we need to handle logging in
-                    boolean successfulLogin = login();
+                    boolean successfulLogin = login( conn, scan );
                     if( successfulLogin ){
                         loggedIn = true;
                     }else{
@@ -170,6 +190,9 @@ public class Main {
 
 
             }
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
