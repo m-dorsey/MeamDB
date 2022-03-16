@@ -64,10 +64,6 @@ public class Main {
     }
 
 
-    private static boolean createNewAccount( Connection conn ){
-
-    }
-
 
     public static void main(String[] args) throws SQLException {
 
