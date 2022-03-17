@@ -12,15 +12,15 @@ public class Main {
 
     /**
      *
-     * @return null if invalid, username otherwise.
+     * @return -1 if invalid, userid otherwise.
      */
-    private static String login( Connection conn, Scanner scan ){
+    private static int login( Connection conn, Scanner scan ){
 
         String username = "";
         String password = "";
+		String input;
 
-        boolean validLogin = false;
-        while (!validLogin) {
+        do {
             System.out.println("input the username for the account");
             username = scan.nextLine();
             System.out.println("input the password for the account.");
@@ -29,44 +29,28 @@ public class Main {
 
             try {
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = '" + username + "'");
+                ResultSet rs = stmt.executeQuery("Select password, uid from p320_12.user where p320_12.user.username = '" + username + "'");
 
                 while (rs.next()) {
-                    if( rs.getString("password").equals(password)){
-                        //valid login. the username matches the password
-                        validLogin = true;
-                        break;
+                    if( rs.getString(1).equals(password)){
+						return rs.getInt(2);
                     }
                 }
             }catch (Exception e){
                 e.printStackTrace();
             }
 
+			System.out.println("invalid login. 'y' to try again. anything else to exit.");
+			input = scan.nextLine();
+        } while (!input.equalsIgnoreCase("y"));
 
-
-
-            if( validLogin ){
-                //FIXME probably want to return the uid instead, because it's what we reference
-                return username;
-            }else if ( !validLogin ) {
-                System.out.println("invalid login. 'y' to try again. anything else to exit.");
-                String input = scan.nextLine();
-                input = input.toLowerCase();
-                if (input.equals("y")) {
-                    //we go through the loop again all easy like
-                } else {
-                    return null;
-                }
-            }
-        }
-
-        //this should be unreachable, but compiler is complaining.
-        return null;
+		// User chose not to log in
+        return -1;
     }
 
 
 
-    public static String createNewAccount(Connection conn, Scanner scan){
+    public static int createNewAccount(Connection conn, Scanner scan) throws SQLException {
 
 
         //get the username
@@ -92,7 +76,7 @@ public class Main {
                         String input = scan.nextLine();
                         input = input.toLowerCase();
                         if( !input.equals("y") ){
-                            return null;
+                            return -1;
                         }else{
                             copiedUser = true;
                         }
@@ -152,7 +136,7 @@ public class Main {
                         String input = scan.nextLine();
                         input = input.toLowerCase();
                         if( !input.equals("y") ){
-                            return null;
+                            return -1;
                         }else{
                             copiedEmail = true;
                         }
@@ -183,14 +167,32 @@ public class Main {
         //TODO now we have to add the tuple to the database.
         // gotta figure that out later.
 
-
-
-
-
-        //FIXME we should instead return the uid, because that's what's
-        // always referenced
-        return username;
+		return createUser(conn, username, password, fname, lname, email);
     }
+
+	public static int createUser(
+		Connection c,
+		String username,
+		String password,
+		String fname,
+		String lname,
+		String email
+	) throws SQLException {
+		PreparedStatement creationStatement = c.prepareStatement("INSERT INTO p320_12.user (username, password, fname, lname, email) VALUES (?, ?, ?, ?, ?) RETURNING uid");
+
+		creationStatement.setString(1, username);
+		creationStatement.setString(2, password);
+		creationStatement.setString(3, fname);
+		creationStatement.setString(4, lname);
+		creationStatement.setString(5, email);
+
+		ResultSet maybeUserId = creationStatement.executeQuery();
+		if(maybeUserId.next()) {
+			return maybeUserId.getInt(1);
+		} else {
+			throw new RuntimeException("Failed to create user???");
+		}
+	}
 
     public static boolean createNewCollection( Connection conn, Scanner scan, int uid ){
 
@@ -627,6 +629,7 @@ public class Main {
             String username = null;
 
             boolean loggedIn = false;
+			int userId = -1;
 
             //this loop runs forever to get input from the user
             while( true ) {
@@ -642,10 +645,9 @@ public class Main {
 
                 if (input.equals("login")) {
                     //in here, we need to handle logging in
-                    String loginInfo = login( conn, scan );
-                    if( loginInfo != null ){
+                    userId = login( conn, scan );
+                    if( userId != -1 ){
                         loggedIn = true;
-                        username = loginInfo;
                     }else{
                         loggedIn = false;
                     }
@@ -658,8 +660,8 @@ public class Main {
                     //in here, we need to handle creating a new account
                     //and getting all that data.
 
-                    username = createNewAccount( conn, scan );
-                    if( username != null ){
+                    userId = createNewAccount( conn, scan );
+                    if( userId != -1 ){
                         loggedIn = true;
                     }else {
                         loggedIn = false;
@@ -688,7 +690,7 @@ public class Main {
                 } else if (input.equals("play collection")) {
 
                 } else if (input.equals("follow friend")) {
-					FollowUser.run_command(conn, scan, 1312);
+					FollowUser.run_command(conn, scan, userId);
                 } else if (input.equals("unfollow friend")) {
 
                 } else {
