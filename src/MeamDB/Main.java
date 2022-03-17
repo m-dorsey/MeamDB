@@ -501,6 +501,9 @@ public class Main {
         String user = "YOUR_CS_USERNAME"; //change to your username
         String password = "YOUR_CS_PASSWORD"; //change to your password
         String databaseName = "p320_12"; //change to your database name
+        String user = "CS_USER"; //change to your username
+        String password = "CS_PASSWORD"; //change to your password
+        String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
         Connection conn = null;
@@ -564,7 +567,7 @@ public class Main {
 
                 //TODO we probably want to have a function for each command
 
-                //NOTE: we mmight want to keep it in this series of if else statements, because
+                //NOTE: we might want to keep it in this series of if else statements, because
                 //      the 4th if checks to see if the user is logged in, not the input.
 
                 if (input.equals("login")) {
@@ -576,7 +579,12 @@ public class Main {
                     }else{
                         loggedIn = false;
                     }
-                } else if (input.equals("create new account")) {
+
+                }
+                else if (input.equals("exit")){
+                    break;
+                }
+                else if (input.equals("create new account")) {
                     //in here, we need to handle creating a new account
                     //and getting all that data.
 
@@ -623,8 +631,6 @@ public class Main {
 
                 } else if (input.equals("unfollow friend")) {
 
-                } else if (input.equals("exit")){
-                    break;
                 } else {
                     System.out.println("That is not a valid command.");
                 }
