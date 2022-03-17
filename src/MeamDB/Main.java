@@ -190,11 +190,11 @@ public class Main {
         return username;
     }
 
-    public static boolean createNewCollection( Connection conn, Scanner scan, Integer uid ){
+    public static boolean createNewCollection( Connection conn, Scanner scan, int uid ){
 
         //FIXME in the database, we need to make the name and uid combined unique, or else a
         // user wouldn't be able to specify which collection to modify.
-        //Actually, we might be able to avoid that if we make it so they
+        // Actually, we might be able to avoid that if we make it so they
         // can't input a new name or change a name to something that already exists
 
         System.out.println("Input a new name for the collection.");
@@ -228,6 +228,7 @@ public class Main {
                     //valid collection.
                     //TODO write the SQL to add the collection to the database.
                     return true;
+
                 }
 
             }catch ( Exception e){
@@ -237,10 +238,112 @@ public class Main {
 
         }
 
-        //this return shuld be unreachable.
+        //this return should be unreachable.
         return false;
     }
 
+    public static void viewCollections( Connection conn, int uid ){
+        //want to the the full result set and print out everything
+        // FIXME we should check to see if we just need to print out all collectoins
+        //  or collections *with* their songs, or if we print all then
+        //  allow a user to expand a selected one.
+
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid);
+
+
+            while( rs.next() ){
+                System.out.println(rs.getString("name"));
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public static void renameCollection( Connection conn, Scanner scan, int uid ) {
+
+
+        boolean validCollection = false;
+        int collectionID = -1;
+        while (!validCollection){
+            System.out.println("Input a collection to rename.");
+            String chosen = scan.nextLine();
+
+            try {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = " + chosen);
+
+                //if it has something, then that means there is a colleciton with the chosen name,
+                // so we can't use it
+                if( rs.next() ){
+                    collectionID = rs.getInt("cid");
+                    validCollection = true;
+                }else{
+                    System.out.println("That is not a collection.");
+                    System.out.println("Check to see if you typed it wrong.");
+                    System.out.println("Input 'y' to try again.");
+                    String input = scan.nextLine();
+                    if( input.toLowerCase().equals("y")){
+                        //we go through again
+                    }else{
+                        //we're giving up.
+                        return;
+                    }
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+
+        }
+
+
+        boolean validNewName = false;
+        String newName = null;
+        while( !validNewName ){
+            System.out.println("Input a new name for this collection.");
+            newName = scan.nextLine();
+
+            try{
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = " + newName);
+
+                //if the result set is not null, then there is a collection with that name already
+                if( rs.next()){
+                    System.out.println("There already exists a collection with that name.");
+                    System.out.println("Input 'y' to try again.");
+                    String input = scan.nextLine();
+                    if( input.toLowerCase().equals("y")){
+                        //we're going again
+                    }else{
+                        //we're giving up.
+                        return;
+                    }
+                }else{
+                    //the name isn't already being used
+                    validNewName = true;
+                    //TODO write the sql to modify the name of the collection
+                    // to what the user input. We've got all the data, we just need
+                    // to write the SQl (which I can't remember. oops.)
+
+                    //we're leaving, because we're done
+                    return;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+        //this should be unreachable. Eitherway, it won't affect anything.
+    }
 
     public static void main(String[] args) throws SQLException {
 
