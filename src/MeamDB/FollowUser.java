@@ -16,11 +16,26 @@ public class FollowUser extends Command {
 		this.uid = uid;
 	}
 
+    protected Command.Action action() {
+		switch(this.state) {
+			case Initial:
+			case Failed:
+				return Command.Action.Prompt;
+			case Fetch:
+				return Command.Action.Sql;
+			case Success:
+			case Quit:
+				return Command.Action.Exit;
+		}
+		throw new RuntimeException("unreachable");
+    }
+
 	protected void processInput(String input) {
 		if(input.equalsIgnoreCase("quit")) {
 			this.state = State.Quit;
 		} else {
 			this.last_user = input;
+			this.state = State.Fetch;
 		}
 	}
 
@@ -34,11 +49,12 @@ public class FollowUser extends Command {
 				return "You're now following " + last_user;
 			case Quit:
 				return "Returning to main menu";
+            default:
+                throw new RuntimeException("Internal error:  State shouldn't prompt");
 		}
-		throw new RuntimeException("unreachable");
 	}
 
-	protected void trySql(Connection c) throws SQLException {
+	protected void runSql(Connection c) throws SQLException {
 		Statement stmt = c.createStatement();
 		ResultSet maybe_user = stmt.executeQuery("select uid from p320_12.user where username = '" + this.last_user + "';");
 		if(maybe_user.next()) {
@@ -55,30 +71,5 @@ public class FollowUser extends Command {
 		}
 	}
 
-	protected boolean shouldExit() {
-		switch(this.state) {
-			case Initial:
-			case Failed:
-				return false;
-			case Success:
-			case Quit:
-				return true;
-		}
-		throw new RuntimeException("unreachable");
-	}
-
-	protected boolean shouldTrySql() {
-		switch(this.state) {
-			case Initial:
-			case Failed:
-				return true;
-			case Success:
-			case Quit:
-				return false;
-		}
-		throw new RuntimeException("unreachable");
-	}
-
-	private static enum State { Initial, Failed, Success, Quit }
-
+	private static enum State { Initial, Failed, Fetch, Success, Quit }
 }
