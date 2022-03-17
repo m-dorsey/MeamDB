@@ -340,24 +340,20 @@ public class Main {
     }
 
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
-        System.out.println("Enter Song Name");
-        String songName = scan.nextLine();
-        System.out.println("Enter Artist Name");
-        String artist = scan.nextLine();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("select title from p320_12.song where p320_12.song.title = " + songName);
+        ResultSet rs = searchSong(conn, scan);
 
         if (rs.next()) {
-            Statement stamt = conn.createStatement();
-            stamt.executeQuery("select title from p320_12.song where p320_12.song.title = " + songName);
+            System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
+            Statement stmt = conn.createStatement();
+            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getString("s.sid") + ", Current TIME CURRENT_TIMESTAMP");
         }
         else{
-            System.out.println("No song with that name available");
+            System.out.println("No song available");
         }
         return true;
     }
 
-    public static void searchSong( Connection conn, Scanner scan ){
+    public static ResultSet searchSong( Connection conn, Scanner scan ){
 
         boolean validSearch = false;
         while( !validSearch ) {
@@ -480,10 +476,12 @@ public class Main {
                         combined += " | " + rs.getInt("count(p.timestamp)");
                         System.out.println(combined);
                     }
+                    return rs;
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }else{
                 System.out.println("That is not a valid input. Input 'y' to try again.");
                 String input = scan.nextLine();
@@ -492,7 +490,7 @@ public class Main {
                     //we're going again
                 }else{
                     //guess they're giving up
-                    return;
+                    return null;
                 }
             }
         }
