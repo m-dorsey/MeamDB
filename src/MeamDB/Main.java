@@ -266,8 +266,6 @@ public class Main {
     }
 
     public static void renameCollection( Connection conn, Scanner scan, int uid ) {
-
-
         boolean validCollection = false;
         int collectionID = -1;
         while (!validCollection){
@@ -299,11 +297,7 @@ public class Main {
             }catch (Exception e){
                 e.printStackTrace();
             }
-
-
-
         }
-
 
         boolean validNewName = false;
         String newName = null;
@@ -345,13 +339,31 @@ public class Main {
         //this should be unreachable. Eitherway, it won't affect anything.
     }
 
+    public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
+        System.out.println("Enter Song Name");
+        String songName = scan.nextLine();
+        System.out.println("Enter Artist Name");
+        String artist = scan.nextLine();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("select title from p320_12.song where p320_12.song.title = " + songName);
+
+        if (rs.next()) {
+            Statement stamt = conn.createStatement();
+            stamt.executeQuery("select title from p320_12.song where p320_12.song.title = " + songName);
+        }
+        else{
+            System.out.println("No song with that name available");
+        }
+        return true;
+    }
+
     public static void main(String[] args) throws SQLException {
 
-        int lport = 5432;
+        int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = "CS_USER"; //change to your username
-        String password = "CS_PASSWORD"; //change to your password
+        String user = "asr3571"; //change to your username
+        String password = "Rehte@23752375"; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
