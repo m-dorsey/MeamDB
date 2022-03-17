@@ -540,13 +540,41 @@ public class Main {
         return null;
     }
 
+    /**
+     *
+     */
+    public static void usage() {
+
+        System.out.println("HELP ------------------------------------------------------------------------------------------------------------\n" +
+                "'login'                   \t\t Login to an existing account. You must login before executing other commands\n" +
+                "'create new account'      \t\t Create a new account\n" +
+                "'create new collection'   \t\t Create a new collection\n" +
+                "'view collections'        \t\t View all of your created collections\n" +
+                "'search song'             \t\t Search for songs\n" +
+                "'rename collection'       \t\t Rename one of your collections\n" +
+                "'modify collection'       \t\t Modify one of your collections\n" +
+                "'delete collection'       \t\t Delete one of your collections\n" +
+                "'play song'               \t\t Play a song\n" +
+                "'play collection'         \t\t Play a collection\n" +
+                "'follow friend'           \t\t Follow a friend\n" + //FIXME it isn't specified, but we probably also want to be able to list the follows.
+                "'unfollow friend'         \t\t Unfollow a friend\n" +
+                "'exit'                    \t\t Exit the program\n"
+        );
+
+    }
+
+    /**
+     *
+     * @param args
+     * @throws SQLException
+     */
     public static void main(String[] args) throws SQLException {
 
         int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = "CS_USER"; //change to your username
-        String password = "CS_PASSWORD"; //change to your password
+        String user = "USER"; //change to your username
+        String password = "PASS"; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
@@ -640,19 +668,9 @@ public class Main {
                     }
 
                 } else if (input.equals("help")) {
-                    System.out.println("'login' to login to an existing account. You must log in before you execute other commands");
-                    System.out.println("'create new account' to create a new account.");
-                    System.out.println("'create new collection' to create a new collection of songs.");
-                    System.out.println("'view collections' to view all your created collections");
-                    System.out.println("'search song' to search for songs.");
-                    System.out.println("'rename collection' to rename a collection");
-                    System.out.println("'modify collection' to add or remove songs or albums from a collection");
-                    System.out.println("'delete collection' to delete a collection.");
-                    System.out.println("'play song' to play a song.");
-                    System.out.println("'play collection' to play a collection.");
-                    System.out.println("'follow friend' to follow a friend."); //FIXME it isn't specified, but we probably also want to be able to list the follows.
-                    System.out.println("'unfollow friend' to unfollow a friend.");
-                    System.out.println("'exit' to exit the program.");
+
+                    usage();
+
                 } else if (!loggedIn) {
                     System.out.println("Error: you must be logged in before executing that command.");
                 } else if (input.equals("create new collection")) {
