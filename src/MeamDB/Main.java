@@ -242,6 +242,39 @@ public class Main {
         return false;
     }
 
+    public static boolean modifyCollection( Connection conn, Scanner scan, int uid ) throws SQLException {
+        System.out.println("Which collection would you like to modify?");
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid);
+        while( rs.next() ){
+            System.out.println(rs.getString("name"));
+        }
+
+        String collectionName = scan.nextLine();
+        ResultSet collection = stmt.executeQuery("select * from p320_12.collection where p320_12.collection.uid = "
+            + uid + " and p320_12.collection.name = " + collectionName);
+
+        System.out.println("How would you like to modify " + collectionName + "? Add song | Remove song");
+        String modification = scan.nextLine();
+
+        if(modification.equals("Add song")){
+            System.out.println("Which song would you like to add?");
+            ResultSet songToAdd = searchSong(conn, scan);
+            stmt.executeQuery("insert into p320_12.song_collection "
+                + "(" + rs.getString("s.sid") +", " + collection.getString("cid") + ")");
+        }
+        else if(modification.equals("Remove song")){
+            System.out.println("Which song would you like to remove?");
+            ResultSet songToRemove = searchSong(conn, scan);
+        }
+        else{
+            System.out.println("Invalid modification. Please try again");
+            return false;
+        }
+        return true;
+    }
+
+
     public static void viewCollections( Connection conn, int uid ){
         //want to the the full result set and print out everything
         // FIXME we should check to see if we just need to print out all collectoins
@@ -345,8 +378,10 @@ public class Main {
         if (rs.next()) {
             System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
             Statement stmt = conn.createStatement();
-            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getString("s.sid") + ", Current TIME CURRENT_TIMESTAMP");
-            stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = " + rs.getString("s.sid"));
+            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getString("s.sid") +
+                ", Current TIME CURRENT_TIMESTAMP)");
+            stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = "
+                + rs.getString("s.sid"));
         }
         else{
             System.out.println("No song available");
