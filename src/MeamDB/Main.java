@@ -357,6 +357,148 @@ public class Main {
         return true;
     }
 
+    public static void searchSong( Connection conn, Scanner scan ){
+
+        boolean validSearch = false;
+        while( !validSearch ) {
+            System.out.println("Search by 'song name', 'artist', 'album', or 'genre'");
+            String searchingBy = scan.nextLine();
+            searchingBy = searchingBy.toLowerCase();
+
+            System.out.println("Sort alphabetically by 'song name' or 'artist name'");
+            String orderingBy = scan.nextLine();
+            orderingBy = orderingBy.toLowerCase();
+
+
+            if( ( searchingBy.equals("song name") || searchingBy.equals("artist") || searchingBy.equals("album") || searchingBy.equals("genre"))){
+                if( orderingBy.equals("song name") || orderingBy.equals("artist name")){
+                    //we're good. Both inputs are successful
+                    validSearch = true;
+                }
+            }
+
+            if( orderingBy.equals("song name")){
+                orderingBy = "s.title asc";
+            }
+            if( orderingBy.equals("artist name")){
+                orderingBy = "a.name asc";
+            }
+
+            if( validSearch ) {
+                try {
+                    Statement stmt;
+                    ResultSet rs = null;
+
+                    /*
+                    //FIXME I feel like it won't get the count of total
+                    // plays right. We'll see, I guess.
+
+                    alright. Let's get a handle on this query
+                    select s.title, s.genre, a.name, count(p.timestamp), alb.name
+                    from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s
+                    where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid
+                     */
+
+
+                    switch (searchingBy) {
+                        case "song name":
+
+                            System.out.println("Input song name:");
+                            String songName = scan.nextLine();
+
+                            stmt = conn.createStatement();
+                            rs = stmt.executeQuery(
+                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
+                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
+                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
+                                    "and s.title = " + songName + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderingBy
+                            );
+
+
+                            break;
+                        case "artist":
+
+                            System.out.println("Input artist name:");
+                            String artistName = scan.nextLine();
+
+                            stmt = conn.createStatement();
+                            rs = stmt.executeQuery(
+                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
+                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
+                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
+                                    "and a.name = " + artistName + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderingBy
+                            );
+
+
+                            break;
+                        case "album":
+
+                            System.out.println("Input album name:");
+                            String albumName = scan.nextLine();
+
+                            stmt = conn.createStatement();
+                            rs = stmt.executeQuery(
+                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
+                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
+                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
+                                    "and alb.name = " + albumName + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderingBy
+                            );
+
+                            break;
+                        case "genre":
+
+                            System.out.println("Input genre name:");
+                            String genreName = scan.nextLine();
+
+                            stmt = conn.createStatement();
+                            rs = stmt.executeQuery(
+                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
+                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
+                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
+                                    "and s.genre = " + genreName + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderingBy
+                            );
+                            break;
+                    }
+
+                    //We've already got the result set from the switch
+                    // so now we can print everything out
+
+                    //TODO if we can guarantee a max length of any title or anything,
+                    // we can control the white space to be pretty like.
+
+                    System.out.println("Song | Artist | Album | Song Genre | Total Plays");
+                    while( rs.next() ){
+                        String combined = "";
+                        combined += rs.getString("s.title");
+                        combined += " | " + rs.getString("a.name");
+                        combined += " | " + rs.getString("alb.name");
+                        combined += " | " + rs.getString("s.genre");
+                        combined += " | " + rs.getInt("count(p.timestamp)");
+                        System.out.println(combined);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else{
+                System.out.println("That is not a valid input. Input 'y' to try again.");
+                String input = scan.nextLine();
+                input = input.toLowerCase();
+                if( input.equals("y")){
+                    //we're going again
+                }else{
+                    //guess they're giving up
+                    return;
+                }
+            }
+        }
+
+    }
+
     public static void main(String[] args) throws SQLException {
 
         int lport = 5431;
@@ -364,6 +506,9 @@ public class Main {
         int rport = 5432;
         String user = "asr3571"; //change to your username
         String password = "Rehte@23752375"; //change to your password
+        String databaseName = "p320_12"; //change to your database name
+        String user = "CS_USER"; //change to your username
+        String password = "CS_PASSWORD"; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
