@@ -546,7 +546,8 @@ public class Main {
     public static void usage() {
 
         System.out.println("HELP ------------------------------------------------------------------------------------------------------------\n" +
-                "'login'                   \t\t Login to an existing account. You must login before executing other commands\n" +
+                "'login'                   \t\t Login to an existing account.\n" +
+                "                          \t\t *You must login before executing other commands*\n" +
                 "'create new account'      \t\t Create a new account\n" +
                 "'create new collection'   \t\t Create a new collection\n" +
                 "'view collections'        \t\t View all of your created collections\n" +
@@ -573,8 +574,8 @@ public class Main {
         int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = "mad1943"; //change to your username
-        String password = "Ke3nzi!e233729"; //change to your password
+        String user = ""; //change to your username
+        String password = ""; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
@@ -615,7 +616,20 @@ public class Main {
             //the user should first be prompted to log in or create
             // an account
 
-            System.out.println("Input 'login' to log in with your credentials or 'create new account' to create a new account");
+            System.out.println(
+                    "*****************************************\n" +
+                    "-----------------------------------------\n" +
+                    "            Welcome to MeamDB\n" +
+                    "-----------------------------------------\n" +
+                    "*****************************************\n" +
+                    "Getting Started \n" +
+                    "--input one of the following commands:\n" +
+                    "  'login'             \t Login\n" +
+                    "  'create new account'\t Create new account\n" +
+                    "  'help'              \t List all commands\n" +
+                    "-----------------------------------------"
+            );
+//            System.out.println("Input 'login' to log in with your credentials or 'create new account' to create a new account");
 
 
 
@@ -633,7 +647,7 @@ public class Main {
 
             //this loop runs forever to get input from the user
             while( true ) {
-                System.out.println("type 'help' to get a list of commands.");
+                System.out.print("what would you like to do: ");
 
                 input = scan.nextLine();
                 input = input.toLowerCase();
