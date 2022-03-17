@@ -124,7 +124,9 @@ public class Main {
 
             if( !(password.length() > 0) ){
                 System.out.println("Your password can't be blank.");
-            }
+            } else {
+				validPassword = true;
+			}
         }
 
 
