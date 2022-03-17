@@ -29,7 +29,7 @@ public class Main {
 
             try {
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = " + username);
+                ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = '" + username + "'");
 
                 while (rs.next()) {
                     if( rs.getString("password").equals(password)){
@@ -666,7 +666,7 @@ public class Main {
                 } else if (input.equals("play collection")) {
 
                 } else if (input.equals("follow friend")) {
-
+					FollowUser.run_command(conn, scan, 1312);
                 } else if (input.equals("unfollow friend")) {
 
                 } else {
