@@ -672,7 +672,7 @@ public class Main {
                 } else if (input.equals("play collection")) {
 
                 } else if (input.equals("follow friend")) {
-					FollowUser.run_command(conn, scan, userId);
+                    new FollowUser(userId).run(conn, scan);
                 } else if (input.equals("unfollow friend")) {
 
                 } else {

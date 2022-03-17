@@ -6,32 +6,17 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FollowUser {
+public class FollowUser extends Command {
 
 	private State state = State.Initial;
 	private String last_user = null;
 	private int uid;
 
-	public static void run_command(Connection c, Scanner s, int uid) throws SQLException {
-		new FollowUser(uid).follow_inner(c, s);
-	}
-
 	public FollowUser(int uid) {
 		this.uid = uid;
 	}
 
-	private void follow_inner(Connection c, Scanner s) throws SQLException {
-		System.out.println(this.get_prompt());
-		if(!this.should_exit()) {
-			System.out.print("~> ");
-			this.process_input(s.nextLine());
-			if(this.should_try_lookup())
-				this.try_follow(c);
-			this.follow_inner(c, s);
-		}
-	}
-
-	private void process_input(String input) {
+	protected void processInput(String input) {
 		if(input.equalsIgnoreCase("quit")) {
 			this.state = State.Quit;
 		} else {
@@ -39,7 +24,7 @@ public class FollowUser {
 		}
 	}
 
-	private String get_prompt() {
+	protected String getPrompt() {
 		switch(this.state) {
 			case Initial:
 				return "Please enter a username to follow";
@@ -53,7 +38,7 @@ public class FollowUser {
 		throw new RuntimeException("unreachable");
 	}
 
-	private void try_follow(Connection c) throws SQLException {
+	protected void trySql(Connection c) throws SQLException {
 		Statement stmt = c.createStatement();
 		ResultSet maybe_user = stmt.executeQuery("select uid from p320_12.user where username = '" + this.last_user + "';");
 		if(maybe_user.next()) {
@@ -70,7 +55,7 @@ public class FollowUser {
 		}
 	}
 
-	private boolean should_exit() {
+	protected boolean shouldExit() {
 		switch(this.state) {
 			case Initial:
 			case Failed:
@@ -82,7 +67,7 @@ public class FollowUser {
 		throw new RuntimeException("unreachable");
 	}
 
-	private boolean should_try_lookup() {
+	protected boolean shouldTrySql() {
 		switch(this.state) {
 			case Initial:
 			case Failed:
