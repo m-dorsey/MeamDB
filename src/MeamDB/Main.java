@@ -346,9 +346,11 @@ public class Main {
             System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
             Statement stmt = conn.createStatement();
             stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getString("s.sid") + ", Current TIME CURRENT_TIMESTAMP");
+            stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = " + rs.getString("s.sid"));
         }
         else{
             System.out.println("No song available");
+            return false;
         }
         return true;
     }
@@ -494,7 +496,7 @@ public class Main {
                 }
             }
         }
-
+        return null;
     }
 
     public static void main(String[] args) throws SQLException {
@@ -502,9 +504,6 @@ public class Main {
         int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = "asr3571"; //change to your username
-        String password = "Rehte@23752375"; //change to your password
-        String databaseName = "p320_12"; //change to your database name
         String user = "CS_USER"; //change to your username
         String password = "CS_PASSWORD"; //change to your password
         String databaseName = "p320_12"; //change to your database name
