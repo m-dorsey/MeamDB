@@ -32,7 +32,7 @@ public class Main {
                 ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = " + username);
 
                 while (rs.next()) {
-                    if( rs.getString(password).equals(password)){
+                    if( rs.getString("password").equals(password)){
                         //valid login. the username matches the password
                         validLogin = true;
                         break;
@@ -46,6 +46,7 @@ public class Main {
 
 
             if( validLogin ){
+                //FIXME probably want to return the uid instead, because it's what we reference
                 return username;
             }else if ( !validLogin ) {
                 System.out.println("invalid login. 'y' to try again. anything else to exit.");
@@ -84,7 +85,7 @@ public class Main {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery("select * from p320_12.user");
                 while( rs.next() ){
-                    if( rs.getString(username).equals(username)){
+                    if( rs.getString("username").equals(username)){
                         System.out.println("That user name is already in use.");
                         System.out.println("Input 'y' to try again. Anything else to stop.");
 
@@ -142,7 +143,7 @@ public class Main {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery("select * from p320_12.user");
                 while( rs.next() ){
-                    if( rs.getString(email).equals(username)){
+                    if( rs.getString("email").equals(username)){
                         System.out.println("That email is already in use.");
                         System.out.println("Input 'y' to try again. Anything else to stop.");
 
@@ -184,9 +185,61 @@ public class Main {
 
 
 
+        //FIXME we should instead return the uid, because that's what's
+        // always referenced
         return username;
     }
 
+    public static boolean createNewCollection( Connection conn, Scanner scan, Integer uid ){
+
+        //FIXME in the database, we need to make the name and uid combined unique, or else a
+        // user wouldn't be able to specify which collection to modify.
+        //Actually, we might be able to avoid that if we make it so they
+        // can't input a new name or change a name to something that already exists
+
+        System.out.println("Input a new name for the collection.");
+
+        boolean validName = false;
+        String collectionName = scan.nextLine();
+
+        while( !validName ) {
+
+            boolean breakLoop = false;
+            try {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select * from p320_12.collection where p320_12.collection.uid = " + uid);
+
+                while( rs.next() ){
+                    if( rs.getString("name").equals(collectionName)){
+                        System.out.println("There already exists a collection with that name.");
+                        System.out.println("Input 'y' to try again with another name. ");
+                        String input = scan.nextLine();
+                        if( input.toLowerCase().equals("y")){
+                            breakLoop = true;
+                            break;
+                        }else{
+                            return false;
+                        }
+                    }
+                }
+
+                if( !breakLoop ){
+                    validName = true;
+                    //valid collection.
+                    //TODO write the SQL to add the collection to the database.
+                    return true;
+                }
+
+            }catch ( Exception e){
+                e.printStackTrace();
+            }
+
+
+        }
+
+        //this return shuld be unreachable.
+        return false;
+    }
 
 
     public static void main(String[] args) throws SQLException {
