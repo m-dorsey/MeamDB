@@ -501,9 +501,6 @@ public class Main {
         String user = "YOUR_CS_USERNAME"; //change to your username
         String password = "YOUR_CS_PASSWORD"; //change to your password
         String databaseName = "p320_12"; //change to your database name
-        String user = "CS_USER"; //change to your username
-        String password = "CS_PASSWORD"; //change to your password
-        String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
         Connection conn = null;
