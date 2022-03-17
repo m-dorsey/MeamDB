@@ -29,7 +29,7 @@ public class Main {
 
             try {
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = " + username);
+                ResultSet rs = stmt.executeQuery("Select * from p320_12.user where p320_12.user.username = '" + username + "'");
 
                 while (rs.next()) {
                     if( rs.getString("password").equals(password)){
