@@ -266,6 +266,8 @@ public class Main {
         else if(modification.equals("Remove song")){
             System.out.println("Which song would you like to remove?");
             ResultSet songToRemove = searchSong(conn, scan);
+            stmt.executeQuery("delete from p320_12.song_collection where p320_12.song_collection.sid = "
+                 + rs.getString("s.sid") + " and p320_12.song_collection.cid = "+ collection.getString("cid"));
         }
         else{
             System.out.println("Invalid modification. Please try again");
