@@ -1,10 +1,10 @@
 package MeamDB;
 
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 
 import java.sql.*;
 import java.util.Properties;
-
 import java.util.Scanner;
 
 public class Main {
@@ -12,9 +12,9 @@ public class Main {
 
     /**
      *
-     * @return true if valid login, false if the user gives up on logging in.
+     * @return null if invalid, username otherwise.
      */
-    private static boolean login( Connection conn, Scanner scan ){
+    private static String login( Connection conn, Scanner scan ){
 
         String username = "";
         String password = "";
@@ -43,24 +43,148 @@ public class Main {
             }
 
 
-            //now we check to see if this is valid credentials.
-            //if so, we allow them in.
-            //if not, then the following statement executes.
-            if( !validLogin ) {
+
+
+            if( validLogin ){
+                return username;
+            }else if ( !validLogin ) {
                 System.out.println("invalid login. 'y' to try again. anything else to exit.");
                 String input = scan.nextLine();
                 input = input.toLowerCase();
                 if (input.equals("y")) {
                     //we go through the loop again all easy like
                 } else {
-                    return false;
+                    return null;
                 }
             }
         }
 
-        //FIXME probably want to actually return a string or string away
-        // with the proper data to do things in the rest of the program.
-        return true;
+        //this should be unreachable, but compiler is complaining.
+        return null;
+    }
+
+
+
+    public static String createNewAccount(Connection conn, Scanner scan){
+
+
+        //get the username
+        boolean validUsername = false;
+        String username = null;
+
+
+        while( !validUsername ) {
+            System.out.println("Input username:");
+            username = scan.nextLine();
+
+
+            boolean copiedUser = false;
+
+            try{
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select * from p320_12.user");
+                while( rs.next() ){
+                    if( rs.getString(username).equals(username)){
+                        System.out.println("That user name is already in use.");
+                        System.out.println("Input 'y' to try again. Anything else to stop.");
+
+                        String input = scan.nextLine();
+                        input = input.toLowerCase();
+                        if( !input.equals("y") ){
+                            return null;
+                        }else{
+                            copiedUser = true;
+                        }
+                        break;
+                    }
+                }
+
+                if( !copiedUser ){
+                    validUsername = true;
+                }
+
+
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+
+
+        //get the password
+        boolean validPassword = false;
+        String password = null;
+        while( !validPassword ){
+            System.out.println("Input password:");
+
+            password = scan.nextLine();
+
+            if( !(password.length() > 0) ){
+                System.out.println("Your password can't be blank.");
+            }
+        }
+
+
+
+        boolean validEmail = false;
+        String email = null;
+        while( !validEmail ){
+            System.out.println("Input email:");
+
+            email = scan.nextLine();
+
+
+            boolean copiedEmail = false;
+
+            try{
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select * from p320_12.user");
+                while( rs.next() ){
+                    if( rs.getString(email).equals(username)){
+                        System.out.println("That email is already in use.");
+                        System.out.println("Input 'y' to try again. Anything else to stop.");
+
+                        String input = scan.nextLine();
+                        input = input.toLowerCase();
+                        if( !input.equals("y") ){
+                            return null;
+                        }else{
+                            copiedEmail = true;
+                        }
+                        break;
+                    }
+                }
+
+                if( !copiedEmail ){
+                    validEmail = true;
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+        String fname = null;
+        System.out.println("Input first name: ");
+        fname = scan.nextLine();
+
+        String lname = null;
+        System.out.println("Input last name: ");
+        lname = scan.nextLine();
+
+
+
+        //TODO now we have to add the tuple to the database.
+        // gotta figure that out later.
+
+
+
+
+
+        return username;
     }
 
 
@@ -123,6 +247,7 @@ public class Main {
 
             Scanner scan = new Scanner(System.in);
             String input = "";
+            String username = null;
 
             boolean loggedIn = false;
 
@@ -134,17 +259,30 @@ public class Main {
                 input = input.toLowerCase();
 
                 //TODO we probably want to have a function for each command
+
+                //NOTE: we mmight want to keep it in this series of if else statements, because
+                //      the 4th if checks to see if the user is logged in, not the input.
+
                 if (input.equals("login")) {
                     //in here, we need to handle logging in
-                    boolean successfulLogin = login( conn, scan );
-                    if( successfulLogin ){
+                    String loginInfo = login( conn, scan );
+                    if( loginInfo != null ){
                         loggedIn = true;
+                        username = loginInfo;
                     }else{
                         loggedIn = false;
                     }
                 } else if (input.equals("create new account")) {
                     //in here, we need to handle creating a new account
                     //and getting all that data.
+
+                    username = createNewAccount( conn, scan );
+                    if( username != null ){
+                        loggedIn = true;
+                    }else {
+                        loggedIn = false;
+                    }
+
                 } else if (input.equals("help")) {
                     System.out.println("'login' to login to an existing account. You must log in before you execute other commands");
                     System.out.println("'create new account' to create a new account.");
@@ -158,6 +296,7 @@ public class Main {
                     System.out.println("'play collection' to play a collection.");
                     System.out.println("'follow friend' to follow a friend."); //FIXME it isn't specified, but we probably also want to be able to list the follows.
                     System.out.println("'unfollow friend' to unfollow a friend.");
+                    System.out.println("'exit' to exit the program.");
                 } else if (!loggedIn) {
                     System.out.println("Error: you must be logged in before executing that command.");
                 } else if (input.equals("create new collection")) {
@@ -180,6 +319,8 @@ public class Main {
 
                 } else if (input.equals("unfollow friend")) {
 
+                } else if (input.equals("exit")){
+                    break;
                 } else {
                     System.out.println("That is not a valid command.");
                 }
