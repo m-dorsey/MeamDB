@@ -19,13 +19,15 @@ public class FollowUser extends Command {
     protected Command.Action action() {
 		switch(this.state) {
 			case Initial:
+				return Command.Action.Prompt("Please enter a username to follow!");
 			case Failed:
-				return Command.Action.Prompt;
+				return Command.Action.Prompt("We couldn't find that user!  Try another name, or type \"quit\"");
 			case Fetch:
-				return Command.Action.Sql;
+				return Command.Action.Query();
 			case Success:
+				return Command.Action.Exit("You're now following " + last_user);
 			case Quit:
-				return Command.Action.Exit;
+				return Command.Action.Exit(null);
 		}
 		throw new RuntimeException("unreachable");
     }
@@ -36,21 +38,6 @@ public class FollowUser extends Command {
 		} else {
 			this.last_user = input;
 			this.state = State.Fetch;
-		}
-	}
-
-	protected String getPrompt() {
-		switch(this.state) {
-			case Initial:
-				return "Please enter a username to follow";
-			case Failed:
-				return "We couldn't find that user!  Try another name, or type \"quit\"";
-			case Success:
-				return "You're now following " + last_user;
-			case Quit:
-				return "Returning to main menu";
-            default:
-                throw new RuntimeException("Internal error:  State shouldn't prompt");
 		}
 	}
 
