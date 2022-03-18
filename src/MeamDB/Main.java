@@ -443,7 +443,6 @@ public class Main {
         return true;
     }
 
-
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
         ResultSet rs = searchSong(conn, scan);
 
@@ -774,7 +773,7 @@ public class Main {
                     playSong(conn, scan, userId);
 
                 } else if (input.equals("play collection")) {
-
+                    playCollection(conn,scan, userId);
                 } else if (input.equals("follow friend")) {
 					new FollowUser(userId).run(conn, scan);
                 } else if (input.equals("unfollow friend")) {
