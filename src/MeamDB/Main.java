@@ -443,6 +443,7 @@ public class Main {
         return true;
     }
 
+
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
         ResultSet rs = searchSong(conn, scan);
 
@@ -720,7 +721,7 @@ public class Main {
                 //TODO we probably want to have a function for each command
 
                 //NOTE: we might want to keep it in this series of if else statements, because
-                //      the 4th if checks to see if the user is logged in, not the input.
+                //      the 5th if checks to see if the user is logged in, not the input.
 
                 if (input.equals("login")) {
                     //in here, we need to handle logging in
@@ -730,7 +731,6 @@ public class Main {
                     }else{
                         loggedIn = false;
                     }
-
                 }
                 else if (input.equals("exit")){
                     break;
@@ -738,54 +738,59 @@ public class Main {
                 else if (input.equals("create new account")) {
                     //in here, we need to handle creating a new account
                     //and getting all that data.
-
                     userId = createNewAccount( conn, scan );
                     if( userId != -1 ){
                         loggedIn = true;
                     }else {
                         loggedIn = false;
                     }
-
-                } else if (input.equals("help")) {
-
+                }
+                else if (input.equals("help")) {
                     usage();
-
-                } else if (!loggedIn) {
+                }
+                else if (!loggedIn) {
                     System.out.println("Error: you must be logged in before executing that command.");
-                } else if (input.equals("create new collection")) {
+                }
+                else if (input.equals("create new collection")) {
                     createNewCollection(conn, scan, userId);
 
-                } else if (input.equals("view collections")) {
+                }
+                else if (input.equals("view collections")) {
                     viewCollections(conn, userId, true);
 
-                } else if (input.equals("search song")) {
+                }
+                else if (input.equals("search song")) {
                     searchSong(conn, scan);
 
-                } else if (input.equals("rename collection")) {
+                }
+                else if (input.equals("rename collection")) {
                     renameCollection(conn, scan, userId);
 
-                } else if (input.equals("modify collection")) {
+                }
+                else if (input.equals("modify collection")) {
                     modifyCollection(conn, scan, userId);
 
-                } else if (input.equals("delete collection")) {
+                }
+                else if (input.equals("delete collection")) {
                     new DeleteCollection(userId).run(conn, scan);
-                } else if (input.equals("play song")) {
+                }
+                else if (input.equals("play song")) {
                     playSong(conn, scan, userId);
-
-                } else if (input.equals("play collection")) {
+                }
+                else if (input.equals("play collection")) {
                     playCollection(conn,scan, userId);
-                } else if (input.equals("follow friend")) {
+                }
+                else if (input.equals("follow friend")) {
 					new FollowUser(userId).run(conn, scan);
-                } else if (input.equals("unfollow friend")) {
+                }
+                else if (input.equals("unfollow friend")) {
                     new UnfollowUser(userId).run(conn, scan);
-                } else {
+                }
+                else {
                     System.out.println("That is not a valid command.");
                 }
 
-
             }
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
