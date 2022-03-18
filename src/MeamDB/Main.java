@@ -640,8 +640,8 @@ public class Main {
         int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = "asr3571"; //change to your username
-        String password = "Rehte@23752375"; //change to your password
+        String user = ""; //change to your username
+        String password = ""; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
