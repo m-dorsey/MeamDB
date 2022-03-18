@@ -18,7 +18,7 @@ public class Main {
 
         String username = "";
         String password = "";
-		String input;
+		    String input;
 
         do {
             System.out.println("input the username for the account");
@@ -231,6 +231,9 @@ public class Main {
                     validName = true;
                     //valid collection.
                     //TODO write the SQL to add the collection to the database.
+                    stmt.executeUpdate("insert into p320_12.collection (name, uid) "
+                        + "values ('" + collectionName + "', " + uid + ")");
+                    System.out.println("Collection: " + collectionName + " has been created");
                     return true;
 
                 }
