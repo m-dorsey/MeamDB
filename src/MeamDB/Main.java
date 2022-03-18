@@ -706,7 +706,7 @@ public class Main {
                 } else if (input.equals("follow friend")) {
 					new FollowUser(userId).run(conn, scan);
                 } else if (input.equals("unfollow friend")) {
-
+                    new UnfollowUser(userId).run(conn, scan);
                 } else {
                     System.out.println("That is not a valid command.");
                 }
