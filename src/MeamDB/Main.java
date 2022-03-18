@@ -18,7 +18,7 @@ public class Main {
 
         String username = "";
         String password = "";
-		String input;
+		    String input;
 
         do {
             System.out.println("input the username for the account");
