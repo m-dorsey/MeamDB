@@ -375,7 +375,7 @@ public class Main {
         }
 
 
-        //this should be unreachable. Eitherway, it won't affect anything.
+        //this should be unreachable. Either way, it won't affect anything.
     }
 
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
@@ -386,7 +386,8 @@ public class Main {
             Statement stmt = conn.createStatement();
             stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getString("s.sid") +
                 ", Current TIME CURRENT_TIMESTAMP)");
-
+            stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = "
+                + rs.getString("s.sid"));
         }
         else{
             System.out.println("No song available");
@@ -573,8 +574,8 @@ public class Main {
         int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = ""; //change to your username
-        String password = ""; //change to your password
+        String user = "asr3571"; //change to your username
+        String password = "Rehte@23752375"; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
@@ -681,23 +682,31 @@ public class Main {
                     }
 
                 } else if (input.equals("help")) {
+
                     usage();
+
                 } else if (!loggedIn) {
                     System.out.println("Error: you must be logged in before executing that command.");
                 } else if (input.equals("create new collection")) {
                     createNewCollection(conn, scan, userId);
+
                 } else if (input.equals("view collections")) {
                     viewCollections(conn, userId);
+
                 } else if (input.equals("search song")) {
-                    searchSong(conn,scan);
+                    searchSong(conn, scan);
+
                 } else if (input.equals("rename collection")) {
-                    renameCollection(conn,scan,userId);
+                    renameCollection(conn, scan, userId);
+
                 } else if (input.equals("modify collection")) {
                     modifyCollection(conn, scan, userId);
+
                 } else if (input.equals("delete collection")) {
 
                 } else if (input.equals("play song")) {
                     playSong(conn, scan, userId);
+
                 } else if (input.equals("play collection")) {
 
                 } else if (input.equals("follow friend")) {
