@@ -53,17 +53,10 @@ public class UnfollowUser extends Command {
     }
 
     private StringBuilder getMenu() {
-        StringBuilder menu = new StringBuilder(this.followedUsers.size() * 20 + 140);
-        menu = menu.append("\n\nID | username\n---|---------------------\n");
-        for(int i = 0; i != followedUsers.size(); i++) {
-            if(i < 9)
-                menu = menu.append('0');
-            menu = menu.append(i)
-                .append(" | ")
-                .append(followedUsers.get(i).username)
-                .append('\n');
-        }
-        return menu;
+        Menu menu = new Menu("username", this.followedUsers.size(), 20);
+        for(User user : followedUsers)
+            menu.addEntry(user.username);
+        return menu.display();
     }
 
     private void loadFollowers(Connection c) throws SQLException {
@@ -94,7 +87,7 @@ public class UnfollowUser extends Command {
             this.state = State.Quit;
         } else {
             try {
-                this.selectedUser = this.followedUsers.get(Integer.parseInt(input));
+                this.selectedUser = this.followedUsers.get(Integer.parseInt(input) - 1);
                 this.state = State.Unfollow;
             } catch(NumberFormatException | IndexOutOfBoundsException e) {
                 this.state = State.BadInput;

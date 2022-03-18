@@ -768,7 +768,7 @@ public class Main {
                     modifyCollection(conn, scan, userId);
 
                 } else if (input.equals("delete collection")) {
-
+                    new DeleteCollection(userId).run(conn, scan);
                 } else if (input.equals("play song")) {
                     playSong(conn, scan, userId);
 
