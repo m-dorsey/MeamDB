@@ -81,15 +81,15 @@ Student 4 tts1848: Emi Simpson\\
     \begin{itemize}
         \item Album( \underline{album\_id}, name, release\_date )
         \item Artist( \underline{artist\_id}, name )
-        \item Song( \underline{sid}, length, title, genre, release\_date, total\_plays)
-        \item User( \underline{uid}, username, password, fname, lname, email, last\_login, number\_collection, creation\_date)
-        \item Collection( \underline{cid}, name, \underline{ \emph{uid} } )
-        \item Album\_Song( \underline{ \emph{album\_id} }, \underline{ \emph{sid} }, track\_number)
-        \item Album\_Artist( \underline{ \emph{album\_id} }, \underline{ \emph{artist\_id} })
-        \item Song\_Artist( \underline{ \emph{sid} }, \underline{ \emph{artist\_id} })
+        \item Song( \underline{sid}, length, title, genre, release\_date )
+        \item User( \underline{uid}, username, password, fname, lname, email, last\_login, creation\_date )
+        \item Collection( \underline{cid}, name, \emph{uid} )
+        \item Album\_Song( \underline{ \emph{album\_id} }, \underline{ \emph{sid} }, track\_number )
+        \item Album\_Artist( \underline{ \emph{album\_id} }, \underline{ \emph{artist\_id} } )
+        \item Song\_Artist( \underline{ \emph{sid} }, \underline{ \emph{artist\_id} } )
         \item Song\_Collection( \underline{ \emph{sid} }, \underline{ \emph{cid} } )
         \item Follower( \underline{ \emph{follower} }, \underline{ \emph{followed} } )
-        \item Play( \underline{ \emph{uid} }, \underline{ \emph{sid} }, last\_time\_listened)
+        \item Play( \underline{ \emph{uid} }, \underline{ \emph{sid} }, last\_time\_listened )
     \end{itemize}
     \\~\\
     We created separate tables (Album, Artist, Song, Collection, User) for each of our
@@ -122,6 +122,10 @@ Student 4 tts1848: Emi Simpson\\
     \subsection{Data Requirements/Constraints}
     In the Follower relationship table, both of the foreign keys, follower and followed, reference the User's uid. These 2 uid fields cannot be the same because the User is not allowed to follow themselves.
 
+    \\~\\
+
+    All of the attributes in our tables are required to be not null.
+
     \subsection{Sample instance data}
 
     \\~\\
@@ -132,15 +136,15 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \underline{album\_id} &name &release\_date \\
             \hline
-            1 & The Praxis of Prophalaxis & 2020-04-17 \\
+            0 & Young, Wild \& Free (feat. Bruno Mars) & 2011-10-11 \\
             \hline
-            2 & Welcome to Hell & 2018-07-27 \\
+            1 & Asaph's Arrows & 2012-02-28 \\
             \hline
-            3 & Database & 2020-01-28 \\
+            2 & 2002 & 2018-04-19 \\
             \hline
-            4 & LP3 & 2020-02-04 \\
+            3 & Final Straw & 2004-01-01 \\
             \hline
-            5 & A Night at The Opera & 1975-11-06 \\
+            4 & How It Works & 2001-08-13 \\
             \hline
         \end{tabular}
     \end{center}
@@ -154,15 +158,15 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \underline{artist\_id} &name \\
             \hline
-            1 & Vermicide Violence \\
+            0 & The Destination \\
             \hline
-            2 & Mono Inc. \\
+            1 & Coolio \\
             \hline
-            3 & Naked Lungs \\
+            2 & G Herbo \\
             \hline
-            4 & Hippo Campus \\
+            3 & Tiësto \\
             \hline
-            5 & Queen \\
+            4 & Hot Chocolate \\
             \hline
         \end{tabular}
     \end{center}
@@ -176,15 +180,15 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \underline{sid} & length & title & genre & release\_date \\
             \hline
-            1 & 2:49 & Database & Hip/Hop & 2021-01-28 \\
+            0 & 153 & For What It's Worth & British soundtrack & 1966-12-05 \\
             \hline
-            2 & 3:38 & Coronaviserated & Screamo & 2020-03-20 \\
+            1 & 326 & Comedown & Alternative emo & 1994-12-06 \\
             \hline
-            3 & 5:55 & Bohemian Rhapsody & Rock & 1975-11-06 \\
+            2 & 328 & Blacken the Cursed Sun & Alternative metal & 2006-08-21 \\
             \hline
-            4 & 4:12 & A Vagabond's Life & Symphonic Metal & 2018-07-27 \\
+            3 & 256 & Machinehead & New romantic & 1994-12-06 \\
             \hline
-            5 & 2:54 & Bang Bang & Alternative & 2022-02-04 \\
+            4 & 266 & Glycerine & Adult standards & 1994-12-06 \\
             \hline
         \end{tabular}
     \end{center}
@@ -194,15 +198,15 @@ Student 4 tts1848: Emi Simpson\\
     \begin{table}
         \scriptsize
         \begin{center}
-            \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+            \begin{tabular}{ |c|c|c|c|c|c|c|c| }
                 \hline
-                \rowcolor{tablegrey} \multicolumn{9}{|c|}{User} \\
+                \rowcolor{tablegrey} \multicolumn{8}{|c|}{User} \\
                 \hline
-                \underline{uid} & username & password & fname & lname & email & last\_login & number\_collection & creation\_date \\
+                \underline{uid} & username & password & fname & lname & email & last\_login & creation\_date \\
                 \hline
-                1 & UserFolk & 123456 & John & Doe & jdoe@gmail.com & 2022-02-18 & 2 & 2022-02-18\\
+                1 & UserFolk & 123456 & John & Doe & jdoe@gmail.com & 2022-02-18 & 2022-02-18\\
                 \hline
-                2 & BobbyS & password123 & Bob & Smith & bsmith@aol.com & 2022-02-16 & 3 & 2022-01-01 \\
+                2 & BobbyS & password123 & Bob & Smith & bsmith@aol.com & 2022-02-16 & 2022-01-01 \\
                 \hline
             \end{tabular}
         \end{center}
@@ -215,7 +219,7 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{3}{|c|}{Collection} \\
             \hline
-            \underline{cid} & name & \underline{ \emph{uid} } \\
+            \underline{cid} & name & \emph{uid} \\
             \hline
             1 & Bangers & 1 \\
             \hline
@@ -239,15 +243,15 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \underline{ \emph{album\_id} } & \underline{ \emph{sid} } & track\_number \\
             \hline
-            5 & 3 & 11 \\
+            7814 & 0 & 1 \\
             \hline
-            3 & 1 & 1 \\
+            1169 & 1 & 5 \\
             \hline
-            1 & 2 & 1 \\
+            8208 & 2 & 7 \\
             \hline
-            2 & 4 & 7 \\
+            1169 & 3 & 7 \\
             \hline
-            4 & 5 & 4 \\
+            1169 & 4 & 10 \\
             \hline
         \end{tabular}
     \end{center}
@@ -259,17 +263,17 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{2}{|c|}{Album\_Artist} \\
             \hline
-            \underline{cid} & name \\
+            \underline{ \emph{album\_id} } & \underline{ \emph{ artist\_id } } \\
             \hline
-            1 & 1 \\
+            0 & 1902 \\
             \hline
-            2 & 2 \\
+            1 & 505 \\
             \hline
-            3 & 3 \\
+            2 & 3141 \\
             \hline
-            4 & 4 \\
+            3 & 3672 \\
             \hline
-            5 & 5 \\
+            4 & 634 \\
             \hline
         \end{tabular}
     \end{center}
@@ -283,15 +287,15 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \underline{ \emph{sid} } & \underline{ \emph{artist\_id} } \\
             \hline
-            1 & 3 \\
+            0 & 4019 \\
             \hline
-            2 & 1 \\
+            1 & 3431 \\
             \hline
-            3 & 5 \\
+            2 & 3004 \\
             \hline
-            4 & 2 \\
+            3 & 3431 \\
             \hline
-            5 & 5 \\
+            4 & 3431 \\
             \hline
         \end{tabular}
     \end{center}
