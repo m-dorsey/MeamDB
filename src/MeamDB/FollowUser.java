@@ -2,6 +2,7 @@ package MeamDB;
 
 import java.util.Scanner;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,11 +43,15 @@ public class FollowUser extends Command {
 	}
 
 	private void addFollower(Connection c) throws SQLException {
-		Statement stmt = c.createStatement();
-		ResultSet maybe_user = stmt.executeQuery("select uid from p320_12.user where username = '" + this.last_user + "';");
+		PreparedStatement stmt = c.prepareStatement("select uid from p320_12.user where username = ?;");
+        stmt.setString(1, this.last_user);
+		ResultSet maybe_user = stmt.executeQuery();
 		if(maybe_user.next()) {
 			int followee_id = maybe_user.getInt(1);
-			int nRows = stmt.executeUpdate("insert into p320_12.follower values (" + this.uid + ", " + followee_id + ");");
+			stmt = c.prepareStatement("insert into p320_12.follower values (?, ?);");
+            stmt.setInt(1, this.uid);
+            stmt.setInt(2, followee_id);
+            int nRows = stmt.executeUpdate();
 			System.out.println(nRows);
 			if(nRows == 1) {
 				this.state = State.Success;
