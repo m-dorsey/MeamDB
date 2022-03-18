@@ -21,8 +21,9 @@ public class UnfollowUser extends Command {
     protected Action action() {
         switch(this.state) {
             case Initial:
+                return Command.Action.Query(c -> this.loadFollowers(c));
             case Unfollow:
-                return Command.Action.Query();
+                return Command.Action.Query(c -> this.unfollow(c));
             case Loaded:
                 if(this.followedUsers.isEmpty())
                     return Command.Action.Exit("You aren't following any users!");
@@ -65,27 +66,27 @@ public class UnfollowUser extends Command {
         return menu;
     }
 
-    protected void runSql(Connection c) throws SQLException {
-        if(this.state == State.Initial) {
-            // Retrieve a list of usrs this person is following
-            PreparedStatement s = c.prepareStatement("SELECT uid, username FROM p320_12.follower JOIN p320_12.user ON uid = followed WHERE follower = ?;");
-            s.setInt(1, this.uid);
-            ResultSet matchedUsers = s.executeQuery();
+    private void loadFollowers(Connection c) throws SQLException {
+        // Retrieve a list of usrs this person is following
+        PreparedStatement s = c.prepareStatement("SELECT uid, username FROM p320_12.follower JOIN p320_12.user ON uid = followed WHERE follower = ?;");
+        s.setInt(1, this.uid);
+        ResultSet matchedUsers = s.executeQuery();
 
-            while(matchedUsers.next()) {
-                this.followedUsers.add(new User(matchedUsers.getInt(1), matchedUsers.getString(2)));
-            }
-
-            this.state = State.Loaded;
-        } else {
-            // Unfollow the user
-            PreparedStatement s = c.prepareStatement("DELETE FROM p320_12.follower WHERE followed = ? AND follower = ?;");
-            s.setInt(1, this.selectedUser.uid);
-            s.setInt(2, this.uid);
-            s.executeUpdate();
-            this.followedUsers.removeIf(u -> u.uid == this.selectedUser.uid);
-            this.state = State.Success;
+        while(matchedUsers.next()) {
+            this.followedUsers.add(new User(matchedUsers.getInt(1), matchedUsers.getString(2)));
         }
+
+        this.state = State.Loaded;
+    }
+
+    private void unfollow(Connection c) throws SQLException {
+        // Unfollow the user
+        PreparedStatement s = c.prepareStatement("DELETE FROM p320_12.follower WHERE followed = ? AND follower = ?;");
+        s.setInt(1, this.selectedUser.uid);
+        s.setInt(2, this.uid);
+        s.executeUpdate();
+        this.followedUsers.removeIf(u -> u.uid == this.selectedUser.uid);
+        this.state = State.Success;
     }
 
     protected void processInput(String input) {

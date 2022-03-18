@@ -23,7 +23,7 @@ public class FollowUser extends Command {
 			case Failed:
 				return Command.Action.Prompt("We couldn't find that user!  Try another name, or type \"quit\"");
 			case Fetch:
-				return Command.Action.Query();
+				return Command.Action.Query(c -> this.addFollower(c));
 			case Success:
 				return Command.Action.Exit("You're now following " + last_user);
 			case Quit:
@@ -41,7 +41,7 @@ public class FollowUser extends Command {
 		}
 	}
 
-	protected void runSql(Connection c) throws SQLException {
+	private void addFollower(Connection c) throws SQLException {
 		Statement stmt = c.createStatement();
 		ResultSet maybe_user = stmt.executeQuery("select uid from p320_12.user where username = '" + this.last_user + "';");
 		if(maybe_user.next()) {

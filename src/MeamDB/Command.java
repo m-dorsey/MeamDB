@@ -15,7 +15,7 @@ public abstract class Command {
         abstract boolean run(Command cmd, Connection c, Scanner s) throws SQLException;
         public static Action Prompt(String message) { return new Action.Prompt(message); };
         public static Action Exit(String message) { return new Action.Exit(message); };
-        public static Action Query() { return new Action.Query(); };
+        public static Action Query(QueryMethod query) { return new Action.Query(query); };
 
         private static class Prompt extends Action {
             private String message;
@@ -40,8 +40,11 @@ public abstract class Command {
         }
 
         private static class Query extends Action {
+            QueryMethod query;
+            private Query(QueryMethod query) { this.query = query; }
+
             protected boolean run(Command cmd, Connection c, Scanner s) throws SQLException {
-                cmd.runSql(c);
+                this.query.query(c);
                 return true;
             }
         }
@@ -49,6 +52,10 @@ public abstract class Command {
     }
 
     protected abstract Action action();
-    protected abstract void runSql(Connection c) throws SQLException;
     protected abstract void processInput(String input);
+
+    @FunctionalInterface
+    protected interface QueryMethod {
+        public void query(Connection c) throws SQLException;
+    }
 }
