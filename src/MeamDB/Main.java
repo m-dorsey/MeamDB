@@ -231,6 +231,9 @@ public class Main {
                     validName = true;
                     //valid collection.
                     //TODO write the SQL to add the collection to the database.
+                    stmt.executeUpdate("insert into p320_12.collection (name, uid) "
+                        + "values ('" + collectionName + "', " + uid + ")");
+                    System.out.println("Collection: " + collectionName + " has been created");
                     return true;
 
                 }
@@ -280,8 +283,7 @@ public class Main {
         return true;
     }
 
-
-    public static void viewCollections( Connection conn, int uid ){
+    public static ResultSet viewCollections( Connection conn, int uid, boolean printing ){
         //want to the the full result set and print out everything
         // FIXME we should check to see if we just need to print out all collectoins
         //  or collections *with* their songs, or if we print all then
@@ -289,19 +291,27 @@ public class Main {
 
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid);
-
+            ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid);
 
             while( rs.next() ){
-                System.out.println(rs.getString("name"));
+                if( printing ) {
+                    System.out.println(rs.getString("name"));
+                }else{
+                    //we just don't print. This exists, so we can
+                    // easily get all the collections for the
+                    // play collection function.
+                }
             }
 
+
+            return rs;
 
         }catch (Exception e){
             e.printStackTrace();
         }
 
-
+        //should be unreachable.
+        return null;
     }
 
     public static void renameCollection( Connection conn, Scanner scan, int uid ) {
@@ -378,13 +388,69 @@ public class Main {
         //this should be unreachable. Either way, it won't affect anything.
     }
 
+    public static boolean playCollection( Connection conn, Scanner scan, int uid ){
+        ResultSet rs = viewCollections(conn, uid, false);
+
+        boolean collectionFound = false;
+        int collectionID = -1; //-1 is a temporary value that never actually happens.
+
+        while (!collectionFound) {
+
+            System.out.println("Input a collection to play.");
+            String collection = scan.nextLine();
+
+
+            try {
+                while (rs.next()) {
+                    if (rs.getString("name").equals(collection)) {
+                        collectionFound = true;
+                        collectionID = rs.getInt("cid");
+                    }
+                }
+
+                if( !collectionFound ){
+                    System.out.println("That is not a valid name. Input 'y' to try again");
+                    String input = scan.nextLine();
+                    if( input.toLowerCase().equals("y")){
+                        //we're going again
+                    }else{
+                        //we're quitting
+                        return false;
+                    }
+                }else{
+                    //otherwise, we can mark everything as played
+
+                    //get all the songs in that collection
+                    Statement stmt = conn.createStatement();
+                    ResultSet songs = stmt.executeQuery("select sid from song_collection where cid = " + collectionID);
+
+                    //mark all the songs as played
+                    while( songs.next() ){
+                        Statement stmt2 = conn.createStatement();
+                        stmt2.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getInt("sid") + ", Current TIME CURRENT_TIMESTAMP)" );
+                    }
+
+
+                    return true;
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return true;
+    }
+
+
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
         ResultSet rs = searchSong(conn, scan);
 
         if (rs.next()) {
             System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
             Statement stmt = conn.createStatement();
-            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getString("s.sid") +
+            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getInt("s.sid") +
                 ", Current TIME CURRENT_TIMESTAMP)");
             stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = "
                 + rs.getString("s.sid"));
@@ -691,7 +757,7 @@ public class Main {
                     createNewCollection(conn, scan, userId);
 
                 } else if (input.equals("view collections")) {
-                    viewCollections(conn, userId);
+                    viewCollections(conn, userId, true);
 
                 } else if (input.equals("search song")) {
                     searchSong(conn, scan);
