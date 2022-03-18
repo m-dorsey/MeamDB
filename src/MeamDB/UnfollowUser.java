@@ -54,7 +54,7 @@ public class UnfollowUser extends Command {
 
     private StringBuilder getMenu() {
         StringBuilder menu = new StringBuilder(this.followedUsers.size() * 20 + 140);
-        menu = menu.append("\n\nID | username\n-------------------------\n");
+        menu = menu.append("\n\nID | username\n---|---------------------\n");
         for(int i = 0; i != followedUsers.size(); i++) {
             if(i < 9)
                 menu = menu.append('0');
