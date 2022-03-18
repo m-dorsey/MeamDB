@@ -698,7 +698,7 @@ public class Main {
                 } else if (input.equals("modify collection")) {
 
                 } else if (input.equals("delete collection")) {
-
+                    new DeleteCollection(userId).run(conn, scan);
                 } else if (input.equals("play song")) {
 
                 } else if (input.equals("play collection")) {
