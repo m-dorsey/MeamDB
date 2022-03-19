@@ -250,7 +250,7 @@ public class Main {
 
         String collectionName = scan.nextLine();
         ResultSet collection = stmt.executeQuery("select * from p320_12.collection where p320_12.collection.uid = "
-            + uid + " and p320_12.collection.name = " + collectionName);
+            + uid + " and p320_12.collection.name = '" + collectionName + "'");
 
         System.out.println("How would you like to modify " + collectionName + "? Add song | Remove song");
         String modification = scan.nextLine();
@@ -314,7 +314,7 @@ public class Main {
 
             try {
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = " + chosen);
+                ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = '" + chosen +"'");
 
                 //if it has something, then that means there is a colleciton with the chosen name,
                 // so we can't use it
@@ -347,7 +347,7 @@ public class Main {
 
             try{
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = " + newName);
+                ResultSet rs = stmt.executeQuery("select name from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = '" + newName + "'");
 
                 //if the result set is not null, then there is a collection with that name already
                 if( rs.next()){
@@ -367,12 +367,7 @@ public class Main {
 
 
                     Statement stmt2 = conn.createStatement();
-                    //FIXME i have 'cid' at the end, but i'm not sure if I need or can have the single quotes.
-                    // I looked on the slides, and it shows them, but I haven't done it for
-                    // anything else, so either update is an exception, or I've probably messed something up.
-
-                    stmt2.executeQuery("update p320_12.collection set name = " + newName + " where cid = '" + collectionID+ "'");
-
+                    stmt2.executeUpdate("update p320_12.collection set name = '" + newName + "' where cid = '" + collectionID+ "'");
 
 
                     //we're leaving, because we're done
@@ -469,24 +464,51 @@ public class Main {
             String searchingBy = scan.nextLine();
             searchingBy = searchingBy.toLowerCase();
 
-            System.out.println("Sort alphabetically by 'song name' or 'artist name'");
+            System.out.println("Sort by 'song name','artist name','genre', or 'release year'");
             String orderingBy = scan.nextLine();
             orderingBy = orderingBy.toLowerCase();
+            String orderAppend1 = "";
 
+            System.out.println("Sort 'ascending' or 'descending'");
+            String sortDirection = scan.nextLine();
+            sortDirection = sortDirection.toLowerCase();
+            String orderAppend2 = "";
+            String orderRunoff = "";
 
             if( ( searchingBy.equals("song name") || searchingBy.equals("artist") || searchingBy.equals("album") || searchingBy.equals("genre"))){
-                if( orderingBy.equals("song name") || orderingBy.equals("artist name")){
-                    //we're good. Both inputs are successful
-                    validSearch = true;
+                if( orderingBy.equals("song name") || orderingBy.equals("artist name") || orderingBy.equals("genre") || orderingBy.equals("release year")){
+                    if( sortDirection.equals("ascending") || sortDirection.equals("descending")) {
+                        //we're good. all inputs are successful
+                        validSearch = true;
+                    }
                 }
             }
 
             if( orderingBy.equals("song name")){
-                orderingBy = "s.title";// asc";
+                //orderingBy = "s.title";// asc";
+                orderAppend1 = "s.title";
+                orderRunoff = "a.name asc";
             }
             if( orderingBy.equals("artist name")){
-                orderingBy = "a.name";// asc";
+                //orderingBy = "a.name";// asc";
+                orderAppend1 = "a.name";
+                orderRunoff = "s.title asc";
             }
+            if( orderingBy.equals("genre")){
+                orderAppend1 = "s.genre";
+                orderRunoff = "s.title asc, a.name asc";
+            }
+            if( orderingBy.equals("release year")){
+                orderAppend1 = "year";
+                orderRunoff = "s.title asc, a.name asc";
+            }
+
+            if( sortDirection.equals( "ascending" )){
+                orderAppend2 = "asc";
+            }else{
+                orderAppend2 = "desc";
+            }
+
 
             if( validSearch ) {
                 try {
@@ -501,6 +523,80 @@ public class Main {
                     select s.title, s.genre, a.name, count(p.timestamp), alb.name
                     from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s
                     where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid
+
+
+
+                     alright. back to the chalk board.
+                     what do we need in this query?
+                        song name
+                        artist name
+                        album
+                        length
+                        listen count
+                    What tables to we need to query?
+                        p320_12.song s
+                        p320_12.artist a
+                        p320_12.song_artist s_a
+                        p320_12.album alb
+                        p320_12.album_song alb_s
+                        p320_12.play p
+                    what columns do we need?
+                        s.title
+                        s.sid
+                        s.length
+                        s.genre
+                        YEAR(s.release_date) as year
+                        a.name
+                        a.artist_id
+                        s_a.sid
+                        s_a.artist_id
+                        alb.name
+                        alb.album_id
+                        alb_s.album_id
+                        alb_s.sid
+                        p.sid    //FIXME want an outer join on plays. It doesn't necessarily exist
+                        count(p) as totalPlay
+                    group by sid
+
+                    what comparisons need to be made
+                        s.sid = s_a.sid
+                        s.sid = alb_s.sid
+                        s.sid = p.sid   //FIXME how will this work with the outer join?
+                        a.artist_id = s_a.artist_id
+                        alb.album_id = alb_s.album_id
+
+                    what comparisons are chosen by the user?
+                        s.title = 'input';
+                        a.name = 'input';
+                        alb.name = 'input';
+                        genre.name = 'input';
+
+                    what do we do for sorting?
+                        FIRST
+                        get sorting from user
+                        asc/desc on
+                        s.title
+                        a.name
+                        s.genre
+                        s.release_date
+
+                     then assuming no contradictions
+                        s.title asc
+                        a.name asc
+
+
+
+                     select s.title, s.sid, s.length, s.genre, YEAR(s.release_date) as year, a.name, a.artist_id, s_a.sid, s_a.artist_id, alb.name, alb.album_id, alb_s.album_id, alb_s.sid
+                     from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s, p320_12.play p
+                     where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id
+                      and INSERT CUSTOM THING
+                     order by INSERT CUSTOM THING, s.title asc, a.name asc
+
+
+
+
+
+
                      */
 
 
@@ -511,13 +607,15 @@ public class Main {
                             String songName = scan.nextLine();
 
                             stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
+                            /*rs = stmt.executeQuery(
                                 "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and s.title = " + songName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy + ";"
+                                    "and s.title = '" + songName + "'" + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderAppend + ";"
                             );
+
+                             */
 
 
                             break;
@@ -527,13 +625,15 @@ public class Main {
                             String artistName = scan.nextLine();
 
                             stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
+                            /*rs = stmt.executeQuery(
                                 "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and a.name = " + artistName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy + ";"
+                                    "and a.name = '" + artistName + "'" +//NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderAppend + ";"
                             );
+
+                             */
 
 
                             break;
@@ -543,13 +643,15 @@ public class Main {
                             String albumName = scan.nextLine();
 
                             stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
+                            /*rs = stmt.executeQuery(
                                 "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and alb.name = " + albumName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy + ";"
+                                    "and alb.name = '" + albumName + "'" + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderAppend + ";"
                             );
+
+                             */
 
                             break;
                         case "genre":
@@ -559,12 +661,26 @@ public class Main {
 
                             stmt = conn.createStatement();
                             rs = stmt.executeQuery(
-                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
-                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and s.genre = " + genreName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy + ";"
+                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, a.artist_id, s_a.sid, s_a.artist_id, alb.name, alb.album_id, alb_s.album_id, alb_s.sid " +
+                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s, p320_12.play p " +
+                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
+                                    "and s.genre = '" + genreName + "' " +
+                                    "order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
                             );
+
+
+                            /*
+                            rs = stmt.executeQuery(
+                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
+                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist sa, p320_12.play p, p320_12.album alb, p320_12.album_song alb_s " +
+                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
+                                    "and s.genre = '" + genreName + "' " + //NOTE: this last part is what specifies that it's the song name
+                                    "order by " + orderAppend1
+                                    //"group by "
+                            );
+
+                             */
+
                             break;
                     }
 
@@ -785,7 +901,12 @@ public class Main {
                     playCollection(conn,scan, userId);
                 }
                 else if (input.equals("follow friend")) {
-					new FollowUser(userId).run(conn, scan);
+					/*
+					note: we have searching for friends via username instead
+					of email, because email isn't necesarily unique, where as
+					username is unique.
+					 */
+                    new FollowUser(userId).run(conn, scan);
                 }
                 else if (input.equals("unfollow friend")) {
                     new UnfollowUser(userId).run(conn, scan);
