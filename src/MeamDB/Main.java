@@ -163,11 +163,7 @@ public class Main {
         lname = scan.nextLine();
 
 
-
-        //TODO now we have to add the tuple to the database.
-        // gotta figure that out later.
-
-		return createUser(conn, username, password, fname, lname, email);
+        return createUser(conn, username, password, fname, lname, email);
     }
 
 	public static int createUser(
@@ -195,11 +191,6 @@ public class Main {
 	}
 
     public static boolean createNewCollection( Connection conn, Scanner scan, int uid ){
-
-        //FIXME in the database, we need to make the name and uid combined unique, or else a
-        // user wouldn't be able to specify which collection to modify.
-        // Actually, we might be able to avoid that if we make it so they
-        // can't input a new name or change a name to something that already exists
 
         System.out.println("Input a new name for the collection.");
 
@@ -230,7 +221,7 @@ public class Main {
                 if( !breakLoop ){
                     validName = true;
                     //valid collection.
-                    //TODO write the SQL to add the collection to the database.
+
                     stmt.executeUpdate("insert into p320_12.collection (name, uid) "
                         + "values ('" + collectionName + "', " + uid + ")");
                     System.out.println("Collection: " + collectionName + " has been created");
@@ -372,9 +363,17 @@ public class Main {
                 }else{
                     //the name isn't already being used
                     validNewName = true;
-                    //TODO write the sql to modify the name of the collection
-                    // to what the user input. We've got all the data, we just need
-                    // to write the SQl (which I can't remember. oops.)
+
+
+
+                    Statement stmt2 = conn.createStatement();
+                    //FIXME i have 'cid' at the end, but i'm not sure if I need or can have the single quotes.
+                    // I looked on the slides, and it shows them, but I haven't done it for
+                    // anything else, so either update is an exception, or I've probably messed something up.
+
+                    stmt2.executeQuery("update p320_12.collection set name = " + newName + " where cid = '" + collectionID+ "'");
+
+
 
                     //we're leaving, because we're done
                     return;
@@ -717,8 +716,6 @@ public class Main {
 
                 input = scan.nextLine();
                 input = input.toLowerCase();
-
-                //TODO we probably want to have a function for each command
 
                 //NOTE: we might want to keep it in this series of if else statements, because
                 //      the 5th if checks to see if the user is logged in, not the input.
