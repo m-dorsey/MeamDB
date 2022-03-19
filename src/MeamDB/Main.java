@@ -456,6 +456,7 @@ public class Main {
         return true;
     }
 
+    /*
     public static void printSongResults( ResultSet rs ){
         System.out.println("Song | Artist | Album | Song Genre | Total Plays");
         try {
@@ -472,6 +473,8 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+     */
 
 
     public static ResultSet searchSong( Connection conn, Scanner scan ){
@@ -686,14 +689,14 @@ public class Main {
                             // just nothing
                             stmt = conn.createStatement();
                             rs = stmt.executeQuery(
-                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, a.artist_id, s_a.sid, s_a.artist_id, alb.name, alb.album_id, alb_s.album_id, alb_s.sid " +
-                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s, p320_12.play p " //+
-                                    //"where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " //+
-                                    //"and s.genre = '" + genreName + "' " //+
+                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, alb.name " +
+                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s " +
+                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
+                                    "and s.genre = '" + genreName + "' " //+
                                     //"order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
                             );
-                            System.out.println("the amount of results is " + rs.getFetchSize());
-                            printSongResults(rs);
+
+                            //printSongResults(rs);
 
                             /*
                             rs = stmt.executeQuery(
@@ -716,19 +719,30 @@ public class Main {
                     //TODO if we can guarantee a max length of any title or anything,
                     // we can control the white space to be pretty like.
 
-                    /*
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    System.out.println("1 is " + metaData.getColumnName(1));
+                    System.out.println("2 is " + metaData.getColumnName(2));
+                    System.out.println("3 is " + metaData.getColumnName(3));
+                    System.out.println("4 is " + metaData.getColumnName(4));
+                    System.out.println("5 is " + metaData.getColumnName(5));
+
+                    System.out.println("6 is " + metaData.getColumnName(6));
+                    System.out.println("7 is " + metaData.getColumnName(7));
+                    //System.out.println("8 is " + metaData.getColumnName(8));
+
+
                     System.out.println("Song | Artist | Album | Song Genre | Total Plays");
                     while( rs.next() ){
                         String combined = "";
-                        combined += rs.getString("s.title");
-                        combined += " | " + rs.getString("a.name");
-                        combined += " | " + rs.getString("alb.name");
-                        combined += " | " + rs.getString("s.genre");
+                        combined += rs.getString("title");
+                        combined += " | " + rs.getString(6);
+                        combined += " | " + rs.getString(7);
+                        combined += " | " + rs.getString("genre");
                         //combined += " | " + rs.getInt("count(p.timestamp)");
                         System.out.println(combined);
                     }
 
-                     */
+
                     return rs;
 
                 } catch (Exception e) {
