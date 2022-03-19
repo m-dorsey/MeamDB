@@ -482,10 +482,10 @@ public class Main {
             }
 
             if( orderingBy.equals("song name")){
-                orderingBy = "s.title asc";
+                orderingBy = "s.title";// asc";
             }
             if( orderingBy.equals("artist name")){
-                orderingBy = "a.name asc";
+                orderingBy = "a.name";// asc";
             }
 
             if( validSearch ) {
@@ -516,7 +516,7 @@ public class Main {
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
                                     "and s.title = " + songName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy
+                                    "order by " + orderingBy + ";"
                             );
 
 
@@ -532,7 +532,7 @@ public class Main {
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
                                     "and a.name = " + artistName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy
+                                    "order by " + orderingBy + ";"
                             );
 
 
@@ -548,7 +548,7 @@ public class Main {
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
                                     "and alb.name = " + albumName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy
+                                    "order by " + orderingBy + ";"
                             );
 
                             break;
@@ -563,7 +563,7 @@ public class Main {
                                     "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
                                     "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
                                     "and s.genre = " + genreName + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderingBy
+                                    "order by " + orderingBy + ";"
                             );
                             break;
                     }
@@ -636,11 +636,18 @@ public class Main {
      */
     public static void main(String[] args) throws SQLException {
 
+        Scanner scan = new Scanner(System.in);
+
         int lport = 5431;
         String rhost = "starbug.cs.rit.edu";
         int rport = 5432;
-        String user = ""; //change to your username
-        String password = ""; //change to your password
+
+        //for security reasons, I'm making it so we have to get user
+        // and password from the user instead of just having it sit here.
+        System.out.println("Input DB account username: ");
+        String user = scan.nextLine();//""; //change to your username
+        System.out.println("Input DB account password: ");
+        String password = scan.nextLine();//""; //change to your password
         String databaseName = "p320_12"; //change to your database name
 
         String driverName = "org.postgresql.Driver";
@@ -703,7 +710,7 @@ public class Main {
             while true
              */
 
-            Scanner scan = new Scanner(System.in);
+
             String input = "";
             String username = null;
 
