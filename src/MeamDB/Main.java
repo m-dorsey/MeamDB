@@ -254,14 +254,14 @@ public class Main {
 
         System.out.println("How would you like to modify " + collectionName + "? Add song | Remove song");
         String modification = scan.nextLine();
-
-        if(modification.equals("Add song")){
+        modification = modification.toLowerCase();
+        if(modification.equals("add song")){
             System.out.println("Which song would you like to add?");
             ResultSet songToAdd = searchSong(conn, scan);
             stmt.executeQuery("insert into p320_12.song_collection "
                 + "(" + rs.getString("s.sid") +", " + collection.getString("cid") + ")");
         }
-        else if(modification.equals("Remove song")){
+        else if(modification.equals("remove song")){
             System.out.println("Which song would you like to remove?");
             ResultSet songToRemove = searchSong(conn, scan);
             stmt.executeQuery("delete from p320_12.song_collection where p320_12.song_collection.sid = "
@@ -455,6 +455,24 @@ public class Main {
         }
         return true;
     }
+
+    public static void printSongResults( ResultSet rs ){
+        System.out.println("Song | Artist | Album | Song Genre | Total Plays");
+        try {
+            while (rs.next()) {
+                String combined = "";
+                combined += rs.getString("s.title");
+                combined += " | " + rs.getString("a.name");
+                combined += " | " + rs.getString("alb.name");
+                combined += " | " + rs.getString("s.genre");
+                //combined += " | " + rs.getInt("count(p.timestamp)");
+                System.out.println(combined);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     public static ResultSet searchSong( Connection conn, Scanner scan ){
 
@@ -659,15 +677,23 @@ public class Main {
                             System.out.println("Input genre name:");
                             String genreName = scan.nextLine();
 
+
+                            //FIXME FIXME so I found a problem.
+                            // it doesn't work
+                            // no idea what's going on
+                            // but it's not getting anything
+                            // not throwing errors
+                            // just nothing
                             stmt = conn.createStatement();
                             rs = stmt.executeQuery(
                                 "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, a.artist_id, s_a.sid, s_a.artist_id, alb.name, alb.album_id, alb_s.album_id, alb_s.sid " +
-                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s, p320_12.play p " +
-                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
-                                    "and s.genre = '" + genreName + "' " +
-                                    "order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
+                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s, p320_12.play p " //+
+                                    //"where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " //+
+                                    //"and s.genre = '" + genreName + "' " //+
+                                    //"order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
                             );
-
+                            System.out.println("the amount of results is " + rs.getFetchSize());
+                            printSongResults(rs);
 
                             /*
                             rs = stmt.executeQuery(
@@ -690,6 +716,7 @@ public class Main {
                     //TODO if we can guarantee a max length of any title or anything,
                     // we can control the white space to be pretty like.
 
+                    /*
                     System.out.println("Song | Artist | Album | Song Genre | Total Plays");
                     while( rs.next() ){
                         String combined = "";
@@ -697,9 +724,11 @@ public class Main {
                         combined += " | " + rs.getString("a.name");
                         combined += " | " + rs.getString("alb.name");
                         combined += " | " + rs.getString("s.genre");
-                        combined += " | " + rs.getInt("count(p.timestamp)");
+                        //combined += " | " + rs.getInt("count(p.timestamp)");
                         System.out.println(combined);
                     }
+
+                     */
                     return rs;
 
                 } catch (Exception e) {
