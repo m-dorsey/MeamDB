@@ -286,7 +286,13 @@ public class Main {
 
             while( rs.next() ){
                 if( printing ) {
-                    System.out.println(rs.getString("name"));
+                    Statement stmt2 = conn.createStatement();
+                    ResultSet data = stmt2.executeQuery("select count(s.sid) as num, sum(s.length) as time from p320_12.song s, p320_12.collection c where s.sid = c.cid and c.cid = " + rs.getInt("cid"));
+
+                    data.next();
+                    System.out.println(rs.getString("name") + " | " + data.getInt(1)  + " | " + data.getInt(2));
+
+
                 }else{
                     //we just don't print. This exists, so we can
                     // easily get all the collections for the
