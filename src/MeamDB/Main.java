@@ -30,13 +30,29 @@ public class Main {
 
 
             try {
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("Select password, uid from p320_12.user where p320_12.user.username = '" + username + "'");
+                // Check if the username/password match & if they do, update the lastLogin
+                // It's a little clumsy, but we can do it in one statement
+                PreparedStatement stmt = conn.prepareStatement(
+                    "UPDATE p320_12.user AS usr                   " +
+                    "SET last_login = CURRENT_TIMESTAMP           " +
+                    "FROM p320_12.user AS original                " +
+                    "WHERE usr.username = ? AND usr.password = ?  " +
+                    "AND original.uid = usr.uid                   " +
+                    "RETURNING usr.uid, original.last_login       "
+                );
+                stmt.setString(1, username);
+                stmt.setString(2, password);
+                ResultSet loggedIn = stmt.executeQuery();
 
-                while (rs.next()) {
-                    if( rs.getString(1).equals(password)){
-						return rs.getInt(2);
-                    }
+                if (loggedIn.next()) {
+                    // If we got a match, the user was logged in
+                    Timestamp lastLogin = loggedIn.getTimestamp(2);
+                    System.out.format(
+                        "Welcome back %s!  Your last login was %s%n",
+                        username,
+                        lastLogin.toString().substring(0,  16) // yyyy-mm-dd hh:mm
+                    );
+                    return loggedIn.getInt(1);
                 }
             }catch (Exception e){
                 e.printStackTrace();
