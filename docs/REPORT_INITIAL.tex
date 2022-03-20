@@ -2,9 +2,22 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{tasks}
+\usepackage{listings}
 \usepackage[table]{xcolor}
+\usepackage{hyperref}
+
+\definecolor{javared}{rgb}{0.6, 0, 0}
+\definecolor{javagreen}{rgb}{0.25, 0.5, 0.35}
+\definecolor{javapurple}{rgb}{0.5, 0, 0.35}
+\definecolor{javadocblue}{rgb}{0.25, 0.35, 0.75}
+\definecolor{pythonblue}{rgb}{0, 0, 0.6}
+\definecolor{pythonred}{rgb}{0.6, 0, 0}
+\definecolor{pythongreen}{rgb}{0, 0.5, 0}
 \definecolor{tablegrey}{rgb}{0.9,0.9,0.9}
 \graphicspath{ {images/} }
+
+
+
 \title{MeamDB}
 
 \date{\today}
@@ -192,7 +205,7 @@ Student 4 tts1848: Emi Simpson\\
 
     \\~\\
     \begin{center}
-        \begin{tabular}{ |c|c|c|c| }
+        \begin{tabular}{ |c|c|c| }
             \hline
             \rowcolor{tablegrey} \multicolumn{3}{|c|}{Album} \\
             \hline
@@ -226,7 +239,7 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             2 & G Herbo \\
             \hline
-            3 & Tiësto \\
+            3 & Ti\"{e}sto \\
             \hline
             4 & Hot Chocolate \\
             \hline
@@ -425,13 +438,198 @@ Student 4 tts1848: Emi Simpson\\
 
 
     \section{Implementation}
-    Use this section to describe the overall implementation of your database.
-    Include samples of SQL statements to create the tables (DDL statements) and
-    a description of the ETL process, including examples of the SQL insert statements
-    used to populate each table initially.
 
-    Include also sample of the SQL insert statements used in your application program
-    to insert new data in the database.
+    \subsection{Database Population}
+    Our dataset was populated with over 13,000 songs directly from various Spotify playlists
+    via the export to csv feature on the \underline{\href{https://skiley.net/}{Skiley}} website.
+    Our data was then accumulated together and cleaned to ensure every song has a single artist, no song
+    is without a genre, the release date has the proper yyyy-mm-dd format and all special characters
+    in the song titles or artist names (eg. \'{a}, \"{i}, \~{n}, etc.) were properly represented.
+    \\~\\
+    The data was uploaded into our database with a python script that parsed through our dataset.csv
+    file. It uses dataclasses, tuples, and lists to combine each table's representative
+    data before importing it into the database. A portion of the script to insert data can be viewed below.
+    \lstset{
+        frame=tb,
+        language=Python,
+        aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle=\ttfamily,
+        numbers=none,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{pythonblue}\bfseries,
+        commentstyle=\color{gray},
+        emphstyle=\ttb\color{pythonred},
+        stringstyle=\color{pythongreen},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=4
+    }
+    \begin{lstlisting}
+        def insert_many_statement(table: str, fields: List[str], n_records: int) -> sql.Composed:
+            fields_sql = sql.SQL(',').join(
+                map(sql.Identifier, fields)
+            )
+            single_value =  (
+                sql.SQL('(') +
+                sql.SQL(',').join(
+                    [sql.Placeholder()] * len(fields)
+                ) +
+                sql.SQL(')')
+            )
+            all_values = sql.SQL(',').join([single_value] * n_records)
+            return sql.SQL('INSERT INTO {} ({}) VALUES {}').format(
+                relation_prefix + sql.Identifier(table),
+                fields_sql,
+                all_values,
+            )
+    \end{lstlisting}
+
+    \subsection{Java Implementation}
+    Our database implementation is based around obtaining user input to
+    perform actions that query or alter the data within our database. Upon program
+    execution, the user is presented with 3 options: login, create new account, or help.
+    Below are examples of SQL statements used to alter our database should the user
+    decide to login or create a new account.
+    \lstset{
+        frame=tb,
+        language=Java,
+        aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle=\ttfamily,
+        numbers=none,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{javapurple}\bfseries,
+        commentstyle=\color{javagreen},
+        stringstyle=\color{javared},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=4
+    }
+    \begin{lstlisting}
+        /** User Login **/
+        PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE p320_12.user AS usr                   " +
+                "SET last_login = CURRENT_TIMESTAMP           " +
+                "FROM p320_12.user AS original                " +
+                "WHERE usr.username = ? AND usr.password = ?  " +
+                "AND original.uid = usr.uid                   " +
+                "RETURNING usr.uid, original.last_login       "
+        );
+    \end{lstlisting}
+    If the ResultSet of the query does not produce an error, it is a valid login.
+    If there is an error, the user will be prompted to enter their credentials again
+    in case of a mistake.
+    \\~\\
+    During the process of creating an account, the entered username and email are
+    subjected to verification to ensure both inputs are unique to the user.
+    \begin{lstlisting}
+        /** User Username Verification **/
+        String username = scan.nextLine();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(
+            "select * from p320_12.user"
+        );
+        while( rs.next() ) {
+            if ( rs.getString("username").equals(username) )
+                System.out.println(
+                    "That username is already in use."
+                );
+        }
+
+        /** User Email Verification **/
+        String email = scan.nextLine();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(
+            "select * from p320_12.user"
+        );
+        while( rs.next() ) {
+            if ( rs.getString("email").equals(username) )
+                System.out.println(
+                    "That email is already in use."
+                );
+        }
+
+        /** User Account Creation **/
+
+        PreparedStatement creationStatement = c.prepareStatement(
+                "INSERT INTO p320_12.user (" +
+                    "username, password, fname," +
+                    "lname, email) " +
+                "VALUES (?, ?, ?, ?, ?)" +
+                "RETURNING uid"
+        );
+
+		creationStatement.setString(1, username);
+		creationStatement.setString(2, password);
+		creationStatement.setString(3, fname);
+		creationStatement.setString(4, lname);
+		creationStatement.setString(5, email);
+
+        ResultSet rs = creationStatement.executeQuery();
+    \end{lstlisting}
+    As shown through the username and email verification snippets,
+    the user information is checked for uniqueness before the data
+    is entered into our database. Due to the requirements we have
+    specified for our database, both the username and email must be
+    unique. Once all the required input is collected from the user,
+    the parameters are entered into the creationStatement variable and
+    executed.
+    \\~\\
+    As the user continues to enter new inputs that call for searching
+    through the database, the SearchKind, SortKind, and SortOrder enums
+    are used to store user decisions before executing the query.
+    \begin{lstlisting}
+        private static enum SearchKind
+            { Song, Artist, Album, Genre}
+        private static enum SortKind
+            { Song, Artist, Genre, Release }
+        private static enum SortOrder
+            { Asc, Desc }
+    \end{lstlisting}
+    One of the capabilities of our program is creating a new collection.
+    This is done by prompting the user for a name for the new collection
+    and ensuring the user does not already have a collection with the same
+    name.
+    \begin{lstlisting}
+        String collectionName = scan.nextLine();
+
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(
+            "select * from p320_12.collection " +
+            "where p320_12.collection.uid = " + uid
+        );
+        while( rs.next() ) {
+            if ( rs.getString("name").equals(collectionName)) {
+                System.out.println(
+                    "There already exists a collection " +
+                    "with that name"
+                );
+            }
+        }
+    \end{lstlisting}
+    Once the collection name is determined to not be repeated, a new collection
+    is created with the provided name and populated into the database.
+    \begin{lstlisting}
+        stmt.executeUpdate(
+            "insert into p320_12.collection (name, uid) " +
+            "values ('" + collectionName + "', " + uid + ")"
+        );
+        System.out.println(
+            "Collection: " + collectionName +
+            " has been created"
+        );
+    \end{lstlisting}
+    To make sure all the actions are done on the correct user's account, their
+    user id is stored and passed through every method as they continue to perform
+    actions that alter or modify the data in any way.
+
+
+
     \section{Data Analysis}
     Finally, add an appendix of all the SQL statements
     created in your application during Phase 4 and a description of the indexes created to
