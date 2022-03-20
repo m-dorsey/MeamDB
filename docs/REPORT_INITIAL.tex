@@ -14,7 +14,7 @@
 \definecolor{pythonred}{rgb}{0.6, 0, 0}
 \definecolor{pythongreen}{rgb}{0, 0.5, 0}
 \definecolor{tablegrey}{rgb}{0.9,0.9,0.9}
-\graphicspath{ {images/} }
+%\graphicspath{ {images/} }
 
 
 
@@ -45,13 +45,16 @@ Student 4 tts1848: Emi Simpson\\
 
     \section{Design}
     \subsection{Conceptual Model}
-    While our ER Diagram will list an 'id' attribute for each of our entity types,
-    in order to distinguish between these unique keys in relationship tables, the
-    following will apply to all entity identifiers:
 
     \\~\\
 
-    \includegraphics[width=5.5in]{ER-Diagram.png}
+%    \begin{figure}
+%        \includegraphics[width=\linewidth]{ER-Diagram/MeamDB ER Diagram.png}
+%    \end{figure}
+
+    \begin{center}
+    \includegraphics[width=5.5in]{ER-Diagram/MeamDB ER Diagram.png}
+    \end{center}
     \caption{MeamDB ER Diagram showing entities and relationships}
     \label{ER Diagram}
 
@@ -61,19 +64,21 @@ Student 4 tts1848: Emi Simpson\\
     username, password, composite attribute name (first\_name, last\_name), email,
     last\_login, and creation\_date. The email and username will have the restriction that it must be unique
     for each user. The key for User will be a uid that is generated when a new user is
-    created and will allow users to update their name, email, and password without
+    created and would allow users to update their name, email, and password without
     changing the key. The last\_login and creation\_date attributed will be populated by the program
-    to track every user login and store when a new user account is first created.
+    to track every user login and store when a new user account is first created. The derived attributes
+    (number\_following, number\_followers, number\_collections) will be generated as the user
+    follows other users, gains followers, and creates playlists of their own.
     \\~\\
-    We gave the Artist the attributes name, and the key artist\_id that
-    will be generated when an artist is created. This will allow artists to change their
-    name (like Prince) should they choose or have any legal issues with their label. The
+    We gave the Artist the attributes name and the key artist\_id that
+    will be generated when an artist is created. This would allow artists to change their
+    name (like Prince) should they choose to or have any legal issues with their label. The
     name will have the restriction that it must be unique to the artist.
     \\~\\
-    The Album entity type has the attributes name and release\_date, and the
-    genre that will be derived based on the artist who made it. The key
+    The Album entity type has the attributes name, release\_date, and derived attribute
+    genre that will be based on the artist who made it. The key
     attribute will be an album\_id generated when an album is created. This allows albums
-    with the same name and albums with multiple artists.
+    with the same name to exist if they are made by different artists.
     \\~\\
     In our design, Song has title, length, genre, and release\_date. We will
     generate a sid to be the key attribute to allow us to distinguish between songs with
@@ -203,7 +208,6 @@ Student 4 tts1848: Emi Simpson\\
 
     \subsection{Sample instance data}
 
-    \\~\\
     \begin{center}
         \begin{tabular}{ |c|c|c| }
             \hline
@@ -224,7 +228,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c|c| }
@@ -246,7 +250,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c| }
@@ -268,7 +272,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{table}
         \scriptsize
@@ -287,7 +291,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{center}
     \end{table}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c|c| }
@@ -309,7 +313,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c|c| }
@@ -331,7 +335,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c| }
@@ -353,7 +357,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c| }
@@ -375,7 +379,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c| }
@@ -397,7 +401,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c| }
@@ -413,7 +417,7 @@ Student 4 tts1848: Emi Simpson\\
         \end{tabular}
     \end{center}
 
-    \\~\\
+
 
     \begin{center}
         \begin{tabular}{ |c|c|c| }
@@ -448,7 +452,7 @@ Student 4 tts1848: Emi Simpson\\
     \\~\\
     The data was uploaded into our database with a python script that parsed through our dataset.csv
     file. It uses dataclasses, tuples, and lists to combine each table's representative
-    data before importing it into the database. A portion of the script to insert data can be viewed below.
+    data before importing it into the database.
     \lstset{
         frame=tb,
         language=Python,
@@ -523,10 +527,10 @@ Student 4 tts1848: Emi Simpson\\
     \end{lstlisting}
     If the ResultSet of the query does not produce an error, it is a valid login.
     If there is an error, the user will be prompted to enter their credentials again
-    in case of a mistake.
+    in case of a mistype or spelling error.
     \\~\\
     During the process of creating an account, the entered username and email are
-    subjected to verification to ensure both inputs are unique to the user.
+    subject to verification to ensure both inputs are unique to every user.
     \begin{lstlisting}
         /** User Username Verification **/
         String username = scan.nextLine();
@@ -555,9 +559,8 @@ Student 4 tts1848: Emi Simpson\\
         }
 
         /** User Account Creation **/
-
         PreparedStatement creationStatement = c.prepareStatement(
-                "INSERT INTO p320_12.user (" +
+                "INSERT INTO p320_12.user (
                     "username, password, fname," +
                     "lname, email) " +
                 "VALUES (?, ?, ?, ?, ?)" +
@@ -604,7 +607,7 @@ Student 4 tts1848: Emi Simpson\\
             "where p320_12.collection.uid = " + uid
         );
         while( rs.next() ) {
-            if ( rs.getString("name").equals(collectionName)) {
+            if ( rs.getString("name").equals(collectionName) ) {
                 System.out.println(
                     "There already exists a collection " +
                     "with that name"
@@ -625,7 +628,7 @@ Student 4 tts1848: Emi Simpson\\
         );
     \end{lstlisting}
     To make sure all the actions are done on the correct user's account, their
-    user id is stored and passed through every method as they continue to perform
+    user id is stored and passed through every action method as they continue to perform
     actions that alter or modify the data in any way.
 
 
@@ -648,55 +651,56 @@ Student 4 tts1848: Emi Simpson\\
     \section{Lessons Learned}
     Use this section to describe the issues you faced during the project and how you overcame them. Also, describe what you learned during this effort; this section, like the others, plays a critical component in determining your final grade.\\
 
-    {\bf The next subsection is meant to provide you with some help in
-    dealing with figures, tables and references, as these are sometimes
-    hard for folks new to \LaTeX. Your figures and tables
-    may be distributed all over your paper (not just here), as appropriate for your paper.
+%    {\bf The next subsection is meant to provide you with some help in
+%    dealing with figures, tables and references, as these are sometimes
+%    hard for folks new to \LaTeX. Your figures and tables
+%    may be distributed all over your paper (not just here), as appropriate for your paper.
 
-    Please delete the following subsection before you make any submissions!}
-
-    \subsection{Tables, Figures, and Citations/References}
-
-    Tables, figures, and references in technical
-    documents need to be presented correctly. As many students
-    are not familiar with using these objects, here is a quick
-    guide extracted from the ACM style guide.
-
-    \begin{table}
-        \centering
-        \caption{Feelings about Issues}
-        \label{SAMPLE TABLE}
-        \begin{tabular}{|l|r|l|} \hline
-        Flavor&Percentage&Comments\\ \hline
-        Issue 1 &  10\% & Loved it a lot\\ \hline
-        Issue 2 &  20\% & Disliked it immensely\\ \hline
-        Issue 3 &  30\% & Didn't care one bit\\ \hline
-        Issue 4 &  40\% & Duh?\\ \hline
-        \end{tabular}
-    \end{table}
-
-
-    First, note that figures in the report must be original, that is,
-    created by the student: please do not cut-and-paste figures from any
-    other paper or report you have read or website. Second, if you do need to include figures,
-    they should be handled as demonstrated here. State that
-    Figure~\ref{SAMPLE FIGURE} is a simple illustration used in the ACM
-    Style sample document. Never refer to the figure below (or above)
-    because figures may be placed by \LaTeX{} at any appropriate location
-    that can change when you recompile your source $.tex$
-    file. Incidentally, in proper technical writing (for reasons beyond
-    the scope of this discussion), table captions are above the table and
-    figure captions are below the figure. So the truly junk information
-    about flavors is shown in Table~\ref{SAMPLE TABLE}.
-
-    \begin{figure}[htb]
-        \begin{center}
-
-            \includegraphics[width=1.5in]{fly.jpg}
-            \caption{A sample black \& white graphic (JPG).}
-            \label{SAMPLE FIGURE}
-        \end{center}
-    \end{figure}
+%    Please delete the following subsection before you make any submissions!}
+%
+%    \subsection{Tables, Figures, and Citations/References}
+%
+%    Tables, figures, and references in technical
+%    documents need to be presented correctly. As many students
+%    are not familiar with using these objects, here is a quick
+%    guide extracted from the ACM style guide.
+%
+%    \begin{table}
+%        \centering
+%        \caption{Feelings about Issues}
+%        \label{SAMPLE TABLE}
+%        \begin{tabular}{|l|r|l|} \hline
+%        Flavor&Percentage&Comments\\ \hline
+%        Issue 1 &  10\% & Loved it a lot\\ \hline
+%        Issue 2 &  20\% & Disliked it immensely\\ \hline
+%        Issue 3 &  30\% & Didn't care one bit\\ \hline
+%        Issue 4 &  40\% & Duh?\\ \hline
+%        \end{tabular}
+%    \end{table}
+%
+%
+%    First, note that figures in the report must be original, that is,
+%    created by the student: please do not cut-and-paste figures from any
+%    other paper or report you have read or website. Second, if you do need to include figures,
+%    they should be handled as demonstrated here. State that
+%    Figure~\ref{SAMPLE FIGURE} is a simple illustration used in the ACM
+%    Style sample document. Never refer to the figure below (or above)
+%    because figures may be placed by \LaTeX{} at any appropriate location
+%    that can change when you recompile your source $.tex$
+%    file. Incidentally, in proper technical writing (for reasons beyond
+%    the scope of this discussion), table captions are above the table and
+%    figure captions are below the figure. So the truly junk information
+%    about flavors is shown in Table~\ref{SAMPLE TABLE}.
+%
+%
+%%    \begin{figure}[htb]
+%%        \begin{center}
+%%
+%%            \includegraphics[width=1.5in]{fly.jpg}
+%%            \caption{A sample black \& white graphic (JPG).}
+%%            \label{SAMPLE FIGURE}
+%%        \end{center}
+%%    \end{figure}
 
     \section{Resources}
     Include in this section the resources you have used in your project beyond the normal code development such as data sets or data analytic tools (i.e. Weka, R).
