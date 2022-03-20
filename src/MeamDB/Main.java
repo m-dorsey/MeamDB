@@ -301,20 +301,17 @@ public class Main {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid);
+            if( printing ) {
+                System.out.println("collection name | total songs | total duration"  );
 
-            while( rs.next() ){
-                if( printing ) {
+                while (rs.next()) {
+
                     Statement stmt2 = conn.createStatement();
                     ResultSet data = stmt2.executeQuery("select count(s.sid) as num, sum(s.length) as time from p320_12.song s, p320_12.song_collection c where s.sid = c.sid and c.cid = " + rs.getInt("cid"));
 
                     data.next();
-                    System.out.println(rs.getString("name") + " | " + data.getInt(1)  + " | " + data.getInt(2));
+                    System.out.println(rs.getString("name") + " | " + data.getInt(1) + " | " + data.getInt(2));
 
-
-                }else{
-                    //we just don't print. This exists, so we can
-                    // easily get all the collections for the
-                    // play collection function.
                 }
             }
 
@@ -440,12 +437,12 @@ public class Main {
 
                     //get all the songs in that collection
                     Statement stmt = conn.createStatement();
-                    ResultSet songs = stmt.executeQuery("select sid from song_collection where cid = " + collectionID);
+                    ResultSet songs = stmt.executeQuery("select sid from p320_12.song_collection where cid = " + collectionID);
 
                     //mark all the songs as played
                     while( songs.next() ){
                         Statement stmt2 = conn.createStatement();
-                        stmt2.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getInt("sid") + ", Current TIME CURRENT_TIMESTAMP)" );
+                        stmt2.execute("insert into p320_12.play(uid,sid,timestamp) values ('" + uid + "', '" + songs.getInt("sid") + "', CURRENT_TIMESTAMP)" );
                     }
 
 
