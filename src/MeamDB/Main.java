@@ -479,9 +479,9 @@ public class Main {
         ResultSet rs = searchSong(conn, scan, false);
 
         if (rs.next()) {
-            System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
+            System.out.println("Now playing " + rs.getString("title") + " by " + rs.getString("artist_name"));
             Statement stmt = conn.createStatement();
-            stmt.execute("insert into p320_12.play(uid,sid,timestamp) values (" + uid + ", " + rs.getInt("s.sid") +
+            stmt.execute("insert into p320_12.play(uid,sid,timestamp) values (" + uid + ", " + rs.getInt("sid") +
                 ", CURRENT_TIMESTAMP)");
         }
         else{
