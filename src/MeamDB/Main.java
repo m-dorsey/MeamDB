@@ -264,9 +264,13 @@ public class Main {
         ResultSet collection = stmt.executeQuery("select * from p320_12.collection where p320_12.collection.uid = "
             + uid + " and p320_12.collection.name = '" + collectionName + "'");
 
-        collection.next();
-
-        int collectionID = collection.getInt("cid");
+        int collectionID = 0;
+        if( collection.next() ) {
+            collectionID = collection.getInt("cid");
+        }else{
+            System.out.println("There was a typo. ");
+            return false;
+        }
 
         System.out.println("How would you like to modify " + collectionName + "? Add song | Remove song");
         String modification = scan.nextLine();
