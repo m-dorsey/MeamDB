@@ -7,17 +7,33 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * A command to run the user interface for unfollowing a user
+ *
+ * Once instantiated with the constructor, the `run(Command, Scanner)` method should be
+ * used to start the command
+ */
 public class UnfollowUser extends Command {
 
+    /** Tracks the current overall state of the command */
     private State state = State.Initial;
+    /** A list of users the active user is currently following */
     private ArrayList<User> followedUsers = new ArrayList<>(10);
+    /** The user from the above list which the active user has selected */
     private User selectedUser;
+    /** The UiD of the active user */
     private int uid;
 
+    /**
+     * Instantiate the command
+     *
+     * @param uid The UID of the active user
+     */
     public UnfollowUser(int uid) {
         this.uid = uid;
     }
 
+    // inherited
     protected Action action() {
         switch(this.state) {
             case Initial:
@@ -52,6 +68,11 @@ public class UnfollowUser extends Command {
 		throw new RuntimeException("unreachable");
     }
 
+    /**
+     * Generate a visual menu from the list of followed users
+     *
+     * @returns a loaded StringBuilder of containing the menu
+     */
     private StringBuilder getMenu() {
         Menu menu = new Menu("username", this.followedUsers.size(), 20);
         for(User user : followedUsers)
@@ -59,6 +80,13 @@ public class UnfollowUser extends Command {
         return menu.display();
     }
 
+    /**
+     * An SQL query to populate the `followers` attribute with the user's followees
+     *
+     * This is used as a Query Action
+     *
+     * @param c The database connection to use
+     */
     private void loadFollowers(Connection c) throws SQLException {
         // Retrieve a list of usrs this person is following
         PreparedStatement s = c.prepareStatement("SELECT uid, username FROM p320_12.follower JOIN p320_12.user ON uid = followed WHERE follower = ?;");
@@ -72,6 +100,16 @@ public class UnfollowUser extends Command {
         this.state = State.Loaded;
     }
 
+    /**
+     * An SQL query to unfollowe the currently selected followee
+     *
+     * This is used as a Query Action
+     *
+     * Requires that a followee is selected, and will raise a null pointer exception if
+     * it's not
+     *
+     * @param c The database connection to use
+     */
     private void unfollow(Connection c) throws SQLException {
         // Unfollow the user
         PreparedStatement s = c.prepareStatement("DELETE FROM p320_12.follower WHERE followed = ? AND follower = ?;");
@@ -82,6 +120,7 @@ public class UnfollowUser extends Command {
         this.state = State.Success;
     }
 
+    // Inherited
     protected void processInput(String input) {
         if(input.equalsIgnoreCase("quit")) {
             this.state = State.Quit;
@@ -95,7 +134,9 @@ public class UnfollowUser extends Command {
         }
     }
 
+    /** The available states for the command to be in */
 	private static enum State { Initial, Loaded, BadInput, Unfollow, Success, Quit, NoFollowees }
+    /** A convenient representation of a followee */
     private static class User {
         int uid;
         String username;

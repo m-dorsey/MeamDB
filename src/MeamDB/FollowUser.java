@@ -7,16 +7,31 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * A command to run the user interface for following a user
+ *
+ * Once instantiated with the constructor, the `run(Command, Scanner)` method should be
+ * used to start the command
+ */
 public class FollowUser extends Command {
 
+    /** Tracks the current overall state of the command */
 	private State state = State.Initial;
+    /** The last username/email the user provided */
 	private String last_user = null;
+    /** The UID of the active user */
 	private int uid;
 
+    /**
+     * Instantiate the command
+     *
+     * @param uid The UID of the active user
+     */
 	public FollowUser(int uid) {
 		this.uid = uid;
 	}
 
+    // Inherited
     protected Command.Action action() {
 		switch(this.state) {
 			case Initial:
@@ -33,6 +48,7 @@ public class FollowUser extends Command {
 		throw new RuntimeException("unreachable");
     }
 
+    // Inherited
 	protected void processInput(String input) {
 		if(input.equalsIgnoreCase("quit")) {
 			this.state = State.Quit;
@@ -42,6 +58,13 @@ public class FollowUser extends Command {
 		}
 	}
 
+    /**
+     * A query to search for and follow the user's last input
+     *
+     * If the input contains an '@', this will search by email instead of username
+     *
+     * If the user doesn't exist, transition to Failed, otherwise, transition to Success
+     */
 	private void addFollower(Connection c) throws SQLException {
         String usernameOrEmail;
         if(this.last_user.indexOf('@') == -1)
@@ -69,5 +92,6 @@ public class FollowUser extends Command {
 		}
 	}
 
+    /** The available states for the command to be in */
 	private static enum State { Initial, Failed, Fetch, Success, Quit }
 }
