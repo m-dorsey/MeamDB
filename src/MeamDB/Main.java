@@ -11,23 +11,27 @@ import java.util.ArrayList;
 
 public class Main {
 
-
     /**
+     * The login function prompts the user to type in their username and password
+     * for the program. If the username and password match with a user in the database,
+     * then that user is logged in. Otherwise, the user is not logged in and is prompted
+     * to retry entering their login credentials.
      *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
      * @return -1 if invalid, userid otherwise.
      */
     private static int login( Connection conn, Scanner scan ){
 
         String username = "";
         String password = "";
-		    String input;
+        String input;
 
         do {
             System.out.println("input the username for the account");
             username = scan.nextLine();
             System.out.println("input the password for the account.");
             password = scan.nextLine();
-
 
             try {
                 // Check if the username/password match & if they do, update the lastLogin
@@ -66,15 +70,22 @@ public class Main {
         return -1;
     }
 
-
-
+    /**
+     * The create new account is used to create a new account using the values username,
+     * password, email, first name, and last name entered by the user. If the username
+     * entered is already in use, the person creating the account must try again. The
+     * email entered must be unique from any existing user in the database.
+     *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
+     * @return error number based on if the account could be created
+     * @throws SQLException
+     */
     public static int createNewAccount(Connection conn, Scanner scan) throws SQLException {
-
 
         //get the username
         boolean validUsername = false;
         String username = null;
-
 
         while( !validUsername ) {
             System.out.println("Input username:");
@@ -112,15 +123,11 @@ public class Main {
                     validUsername = true;
                 }
 
-
-
             }catch (Exception e){
                 e.printStackTrace();
             }
 
         }
-
-
 
         //get the password
         boolean validPassword = false;
@@ -136,8 +143,6 @@ public class Main {
 				validPassword = true;
 			}
         }
-
-
 
         boolean validEmail = false;
         String email = null;
@@ -190,6 +195,19 @@ public class Main {
         return createUser(conn, username, password, fname, lname, email);
     }
 
+    /**
+     * The createUser adds a new user to the database using the values passed in
+     * through parameters username, password, fname, lname, and email.
+     *
+     * @param c         the connection to the DB
+     * @param username  the username for the new user
+     * @param password  the password for the new user
+     * @param fname     the first name of the new user
+     * @param lname     the last name of the new user
+     * @param email     the email of the new user
+     * @return
+     * @throws SQLException
+     */
 	public static int createUser(
 		Connection c,
 		String username,
@@ -214,6 +232,15 @@ public class Main {
 		}
 	}
 
+    /**
+     * Create new collection is used by users to create a new collection. The user
+     * can specify the name of the collection. A new collection has no songs in it.
+     *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
+     * @param uid    the ID of the user that is currently using the program
+     * @return true if successful, false otherwise.
+     */
     public static boolean createNewCollection( Connection conn, Scanner scan, int uid ){
 
         System.out.println("Input a new name for the collection.");
@@ -264,6 +291,15 @@ public class Main {
         return false;
     }
 
+    /**
+     * Modify collection displays all the collections made by the user and allows the
+     * user to add or remove a song from the collection.
+     *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
+     * @param uid    the ID of the user that is currently using the program
+     * @return true if successful, false otherwise.
+     */
     public static boolean modifyCollection( Connection conn, Scanner scan, int uid ) throws SQLException {
         System.out.println("Which collection would you like to modify?");
         Statement stmt = conn.createStatement();
@@ -276,9 +312,13 @@ public class Main {
         ResultSet collection = stmt.executeQuery("select * from p320_12.collection where p320_12.collection.uid = "
             + uid + " and p320_12.collection.name = '" + collectionName + "'");
 
-        collection.next();
-
-        int collectionID = collection.getInt("cid");
+        int collectionID = 0;
+        if( collection.next() ) {
+            collectionID = collection.getInt("cid");
+        }else{
+            System.out.println("There was a typo. ");
+            return false;
+        }
 
         System.out.println("How would you like to modify " + collectionName + "? Add song | Remove song");
         String modification = scan.nextLine();
@@ -286,20 +326,22 @@ public class Main {
         if(modification.equals("add song")){
             System.out.println("Which song would you like to add?");
             ResultSet songToAdd = searchSong(conn, scan, false);
+
             while( songToAdd.next()){
-
-
                 stmt.execute("insert into p320_12.song_collection(sid, cid) values "
                     + "('" + songToAdd.getInt("sid") + "','" + collectionID + "')");
             }
+
         }
         else if(modification.equals("remove song")){
             System.out.println("Which song would you like to remove?");
             ResultSet songToRemove = searchSong(conn, scan, false);
+
             while (songToRemove.next()){
                 stmt.execute("delete from p320_12.song_collection where p320_12.song_collection.sid = "
                     + songToRemove.getInt("sid") + " and p320_12.song_collection.cid = " + collectionID);
             }
+
         }
         else{
             System.out.println("Invalid modification. Please try again");
@@ -308,6 +350,17 @@ public class Main {
         return true;
     }
 
+    /**
+     * View collections allows the user to view all the collections that they have created.
+     * The name, number of songs, and total duration of each collection is printed in
+     * a certain format.
+     *
+     * @param conn       connection to the DB
+     * @param printing   bool to determine whether or not to print the collections
+     * @param uid        the ID of the user that is currently using the program
+     * @return a ResultSet containing the name and ID of all collections made by the
+     *         user.
+     */
     public static ResultSet viewCollections( Connection conn, int uid, boolean printing ){
         //want to the the full result set and print out everything
         // FIXME we should check to see if we just need to print out all collectoins
@@ -338,8 +391,6 @@ public class Main {
                         minutes,
                         seconds
                     );
-
-
                 }
             }
 
@@ -354,6 +405,14 @@ public class Main {
         return null;
     }
 
+    /**
+     * The user can use this method to rename an already existing collection that they
+     * have made.
+     *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
+     * @param uid    the ID of the user that is currently using the program
+     */
     public static void renameCollection( Connection conn, Scanner scan, int uid ) {
         boolean validCollection = false;
         int collectionID = -1;
@@ -365,7 +424,7 @@ public class Main {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid + " and p320_12.collection.name = '" + chosen +"'");
 
-                //if it has something, then that means there is a colleciton with the chosen name,
+                //if it has something, then that means there is a collection with the chosen name,
                 // so we can't use it
                 if( rs.next() ){
                     collectionID = rs.getInt("cid");
@@ -413,11 +472,8 @@ public class Main {
                     //the name isn't already being used
                     validNewName = true;
 
-
-
                     Statement stmt2 = conn.createStatement();
                     stmt2.executeUpdate("update p320_12.collection set name = '" + newName + "' where cid = '" + collectionID+ "'");
-
 
                     //we're leaving, because we're done
                     return;
@@ -427,10 +483,19 @@ public class Main {
             }
         }
 
-
         //this should be unreachable. Either way, it won't affect anything.
     }
 
+    /**
+     * Play collection can be used by a user to listen to one of their collections. Each
+     * song that is a part of that collection will be played once, and have their play
+     * count incremented in the database.
+     *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
+     * @param uid    the ID of the user that is currently using the program
+     * @return true if successful, false otherwise
+     */
     public static boolean playCollection( Connection conn, Scanner scan, int uid ){
         ResultSet rs = viewCollections(conn, uid, false);
 
@@ -486,7 +551,16 @@ public class Main {
         return true;
     }
 
-
+    /**
+     * A user can search for and specify a song that they want to play. That song is played
+     * by the user, and the play count for that song is incremented in the database.
+     *
+     * @param conn   connection to the DB
+     * @param scan   a scanner used to retrieve typed input from the user
+     * @param uid    the ID of the user that is currently using the program
+     * @return true if successful, false otherwise
+     * @throws SQLException
+     */
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
         ResultSet rs = searchSong(conn, scan, false);
 
@@ -559,6 +633,18 @@ public class Main {
             this.genre = genre; this.plays = plays;
         }
     }
+
+    /**
+     * This method is used to search for a certain song in the database. A user can search
+     * by song name, artist name, genre, or release year. The user can specify whether to
+     * view songs in an ascending or descending fashion.
+     *
+     * @param conn        connection to the DB
+     * @param scan        a scanner used to retrieve typed input from the user
+     * @param printing    a bool to determine whether or not to print the song
+     * @return -1 if invalid, userid otherwise.
+     * @throws SQLException
+     */
     public static ResultSet searchSong( Connection conn, Scanner scan, boolean printing ) throws SQLException {
 
         // First we need to figure out what kind of search this is
@@ -739,10 +825,9 @@ public class Main {
     }
 
     /**
-     *
+     *  Print the usage message in the correct format if the user requests help
      */
     public static void usage() {
-
         System.out.println("HELP ------------------------------------------------------------------------------------------------------------\n" +
                 "'login'                   \t\t Login to an existing account.\n" +
                 "                          \t\t *You must login before executing other commands*\n" +
@@ -755,7 +840,7 @@ public class Main {
                 "'delete collection'       \t\t Delete one of your collections\n" +
                 "'play song'               \t\t Play a song\n" +
                 "'play collection'         \t\t Play a collection\n" +
-                "'follow friend'           \t\t Follow a friend\n" + //FIXME it isn't specified, but we probably also want to be able to list the follows.
+                "'follow friend'           \t\t Follow a friend\n" +
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
                 "'exit'                    \t\t Exit the program\n"
         );
@@ -763,7 +848,11 @@ public class Main {
     }
 
     /**
-     *
+     * The main method of the program is used to connect to the database. It then loops
+     * and allows the user to login and use the program by calling other functions. Once
+     * the user is done using the program and exits, the database connection and SSH
+     * connection are closed.
+     * 
      * @param args
      * @throws SQLException
      */
@@ -811,15 +900,7 @@ public class Main {
             conn = DriverManager.getConnection(url, props);
             System.out.println("Database connection established");
 
-            // Do something with the database....
 
-
-
-
-
-
-            //the user should first be prompted to log in or create
-            // an account
 
             System.out.println(
                     "*****************************************\n" +
@@ -834,14 +915,7 @@ public class Main {
                     "  'help'              \t List all commands\n" +
                     "-----------------------------------------"
             );
-//            System.out.println("Input 'login' to log in with your credentials or 'create new account' to create a new account");
 
-
-
-            /*
-            a loop to constantly get input from users
-            while true
-             */
 
 
             String input = "";
@@ -918,11 +992,6 @@ public class Main {
                     playCollection(conn,scan, userId);
                 }
                 else if (input.equals("follow friend")) {
-					/*
-					note: we have searching for friends via username instead
-					of email, because email isn't necesarily unique, where as
-					username is unique.
-					 */
                     new FollowUser(userId).run(conn, scan);
                 }
                 else if (input.equals("unfollow friend")) {

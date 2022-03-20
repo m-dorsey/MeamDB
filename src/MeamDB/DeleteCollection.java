@@ -6,17 +6,33 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * A command to run the user interface for deleting a collection
+ *
+ * Once instantiated with the constructor, the `run(Command, Scanner)` method should be
+ * used to start the command
+ */
 public class DeleteCollection extends Command {
 
+    /** Tracks the current overall state of the command */
     private State state = State.Initial;
+    /** A list of collections which have been retrieved from the database */
     private ArrayList<Collection> collections = new ArrayList<>(10);
+    /** The collection that was last selected by the user */
     private Collection selected;
+    /** The active user's ID */
     private int uid;
 
+    /**
+     * Instantiate the command
+     *
+     * @param uid The UID of the active user
+     */
     public DeleteCollection(int uid) {
         this.uid = uid;
     }
 
+    // Inherits from superclass
     protected Action action() {
         switch(this.state) {
             case Initial:
@@ -51,6 +67,11 @@ public class DeleteCollection extends Command {
 		throw new RuntimeException("unreachable");
     }
 
+    /**
+     * Generate a visual menu from the list of retrieved collections
+     *
+     * @returns a loaded StringBuilder of containing the menu
+     */
     private StringBuilder getMenu() {
         Menu menu = new Menu("collection name", this.collections.size(), 30);
         for(Collection c : this.collections)
@@ -58,6 +79,7 @@ public class DeleteCollection extends Command {
         return menu.display();
     }
 
+    // Inherits
     protected void processInput(String input) {
         if(this.state == State.Confirm)
             this.state =
@@ -77,6 +99,13 @@ public class DeleteCollection extends Command {
             }
     }
 
+    /**
+     * An SQL query to populate the `collections` attribute with the user's collections
+     *
+     * This is used as a Query Action
+     *
+     * @param c The database connection to use
+     */
     private void loadCollections(Connection c) throws SQLException {
         // Retrieve a list of this user's collections
         PreparedStatement s = c.prepareStatement("SELECT cid, name FROM p320_12.collection WHERE uid = ?;");
@@ -90,6 +119,16 @@ public class DeleteCollection extends Command {
         this.state = State.Loaded;
     }
 
+    /**
+     * An SQL query to delete the currently selected collection
+     *
+     * This is used as a Query Action
+     *
+     * Requires that a collection is selected, and will raise a null pointer exception if
+     * it's not
+     *
+     * @param c The database connection to use
+     */
     private void delete(Connection c) throws SQLException {
         // Unfollow the user
         PreparedStatement s = c.prepareStatement("DELETE FROM p320_12.collection WHERE cid = ?;");
@@ -99,7 +138,10 @@ public class DeleteCollection extends Command {
         this.state = State.Success;
     }
 
+    /** The available states for the command to be in */
 	private static enum State { Initial, Loaded, BadInput, Confirm, Delete, Success, Quit }
+
+    /** A convenient representation of a collection */
     private static class Collection {
         int id;
         String name;
