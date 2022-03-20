@@ -20,7 +20,7 @@ public class FollowUser extends Command {
     protected Command.Action action() {
 		switch(this.state) {
 			case Initial:
-				return Command.Action.Prompt("Please enter a username to follow!");
+				return Command.Action.Prompt("Please enter a username or email to follow!");
 			case Failed:
 				return Command.Action.Prompt("We couldn't find that user!  Try another name, or type \"quit\"");
 			case Fetch:
@@ -43,7 +43,13 @@ public class FollowUser extends Command {
 	}
 
 	private void addFollower(Connection c) throws SQLException {
-		PreparedStatement stmt = c.prepareStatement("select uid from p320_12.user where username = ?;");
+        String usernameOrEmail;
+        if(this.last_user.indexOf('@') == -1)
+            usernameOrEmail = "username";
+        else
+            usernameOrEmail = "email";
+
+		PreparedStatement stmt = c.prepareStatement(String.format("select uid from p320_12.user where %s = ?;", usernameOrEmail));
         stmt.setString(1, this.last_user);
 		ResultSet maybe_user = stmt.executeQuery();
 		if(maybe_user.next()) {

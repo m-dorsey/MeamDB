@@ -63,6 +63,12 @@ public class Main {
         while( !validUsername ) {
             System.out.println("Input username:");
             username = scan.nextLine();
+            if(username.indexOf('@') != -1) {
+                // We don't want usernames that look like emails
+                System.out.println("Usernames cannot contain an '@' sign.");
+                System.out.println("Please try again.");
+                continue;
+            }
 
 
             boolean copiedUser = false;
