@@ -6,6 +6,8 @@ import com.jcraft.jsch.Session;
 import java.sql.*;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Map;
+import java.util.ArrayList;
 
 public class Main {
 
@@ -462,292 +464,235 @@ public class Main {
         return true;
     }
 
-    public static ResultSet searchSong( Connection conn, Scanner scan ){
-
-        boolean validSearch = false;
-        while( !validSearch ) {
-            System.out.println("Search by 'song name', 'artist', 'album', or 'genre'");
-            String searchingBy = scan.nextLine();
-            searchingBy = searchingBy.toLowerCase();
-
-            System.out.println("Sort by 'song name','artist name','genre', or 'release year'");
-            String orderingBy = scan.nextLine();
-            orderingBy = orderingBy.toLowerCase();
-            String orderAppend1 = "";
-
-            System.out.println("Sort 'ascending' or 'descending'");
-            String sortDirection = scan.nextLine();
-            sortDirection = sortDirection.toLowerCase();
-            String orderAppend2 = "";
-            String orderRunoff = "";
-
-            if( ( searchingBy.equals("song name") || searchingBy.equals("artist") || searchingBy.equals("album") || searchingBy.equals("genre"))){
-                if( orderingBy.equals("song name") || orderingBy.equals("artist name") || orderingBy.equals("genre") || orderingBy.equals("release year")){
-                    if( sortDirection.equals("ascending") || sortDirection.equals("descending")) {
-                        //we're good. all inputs are successful
-                        validSearch = true;
-                    }
-                }
-            }
-
-            if( orderingBy.equals("song name")){
-                //orderingBy = "s.title";// asc";
-                orderAppend1 = "s.title";
-                orderRunoff = "a.name asc";
-            }
-            if( orderingBy.equals("artist name")){
-                //orderingBy = "a.name";// asc";
-                orderAppend1 = "a.name";
-                orderRunoff = "s.title asc";
-            }
-            if( orderingBy.equals("genre")){
-                orderAppend1 = "s.genre";
-                orderRunoff = "s.title asc, a.name asc";
-            }
-            if( orderingBy.equals("release year")){
-                orderAppend1 = "releaseYear";
-                orderRunoff = "s.title asc, a.name asc";
-            }
-
-            if( sortDirection.equals( "ascending" )){
-                orderAppend2 = "asc";
-            }else{
-                orderAppend2 = "desc";
-            }
-
-
-            if( validSearch ) {
-                try {
-                    Statement stmt;
-                    ResultSet rs = null;
-
-                    /*
-                    //FIXME I feel like it won't get the count of total
-                    // plays right. We'll see, I guess.
-
-                    alright. Let's get a handle on this query
-                    select s.title, s.genre, a.name, count(p.timestamp), alb.name
-                    from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s
-                    where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid
-
-
-
-                     alright. back to the chalk board.
-                     what do we need in this query?
-                        song name
-                        artist name
-                        album
-                        length
-                        listen count
-                    What tables to we need to query?
-                        p320_12.song s
-                        p320_12.artist a
-                        p320_12.song_artist s_a
-                        p320_12.album alb
-                        p320_12.album_song alb_s
-                        p320_12.play p
-                    what columns do we need?
-                        s.title
-                        s.sid
-                        s.length
-                        s.genre
-                        YEAR(s.release_date) as year
-                        a.name
-                        a.artist_id
-                        s_a.sid
-                        s_a.artist_id
-                        alb.name
-                        alb.album_id
-                        alb_s.album_id
-                        alb_s.sid
-                        p.sid    //FIXME want an outer join on plays. It doesn't necessarily exist
-                        count(p) as totalPlay
-                    group by sid
-
-                    what comparisons need to be made
-                        s.sid = s_a.sid
-                        s.sid = alb_s.sid
-                        s.sid = p.sid   //FIXME how will this work with the outer join?
-                        a.artist_id = s_a.artist_id
-                        alb.album_id = alb_s.album_id
-
-                    what comparisons are chosen by the user?
-                        s.title = 'input';
-                        a.name = 'input';
-                        alb.name = 'input';
-                        genre.name = 'input';
-
-                    what do we do for sorting?
-                        FIRST
-                        get sorting from user
-                        asc/desc on
-                        s.title
-                        a.name
-                        s.genre
-                        s.release_date
-
-                     then assuming no contradictions
-                        s.title asc
-                        a.name asc
-
-
-
-                     select s.title, s.sid, s.length, s.genre, YEAR(s.release_date) as year, a.name, a.artist_id, s_a.sid, s_a.artist_id, alb.name, alb.album_id, alb_s.album_id, alb_s.sid
-                     from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s, p320_12.play p
-                     where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id
-                      and INSERT CUSTOM THING
-                     order by INSERT CUSTOM THING, s.title asc, a.name asc
-
-
-
-
-
-
-                     */
-
-
-                    switch (searchingBy) {
-                        case "song name":
-
-                            System.out.println("Input song name:");
-                            String songName = scan.nextLine();
-
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s " +
-                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
-                                    "and s.title = '" + songName + "' " +
-                                    "order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
-                            );
-
-
-                            /*
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
-                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and s.title = '" + songName + "'" + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderAppend + ";"
-                            );
-
-                             */
-
-
-                            break;
-                        case "artist":
-
-                            System.out.println("Input artist name:");
-                            String artistName = scan.nextLine();
-
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s " +
-                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
-                                    "and a.name = '" + artistName + "' " +
-                                    "order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
-                            );
-
-                            /*
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
-                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and a.name = '" + artistName + "'" +//NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderAppend + ";"
-                            );
-
-                             */
-
-
-                            break;
-                        case "album":
-
-                            System.out.println("Input album name:");
-                            String albumName = scan.nextLine();
-
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s " +
-                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
-                                    "and alb.name = '" + albumName + "' " +
-                                    "order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
-                            );
-
-                            /*
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.genre, a.name, count(p.timestamp), alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, song_artist sa, play p, album alb, album_song alb_s " +
-                                    "where s.sid = sa.sid and sa.artist_id = a.artist_id and p.sid = s.sid and alb.album_id = alb_s.album_id and s.sid = alb_s.sid " +
-                                    "and alb.name = '" + albumName + "'" + //NOTE: this last part is what specifies that it's the song name
-                                    "order by " + orderAppend + ";"
-                            );
-
-                             */
-
-                            break;
-                        case "genre":
-
-                            System.out.println("Input genre name:");
-                            String genreName = scan.nextLine();
-
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery(
-                                "select s.title, s.sid, s.length, s.genre, extract(year from s.release_date) as releaseYear, a.name, alb.name " +
-                                    "from p320_12.song s, p320_12.artist a, p320_12.song_artist s_a, p320_12.album alb, p320_12.album_song alb_s " +
-                                    "where s.sid = s_a.sid and s.sid = alb_s.sid and a.artist_id = s_a.artist_id and alb.album_id = alb_s.album_id " +
-                                    "and s.genre = '" + genreName + "' " +
-                                    //"group by s.sid " +
-                                    "order by " + orderAppend1 + " " + orderAppend2 + ", " + orderRunoff
-                            );
-
-
-
-                            break;
-                    }
-
-                    //We've already got the result set from the switch
-                    // so now we can print everything out
-
-                    //TODO if we can guarantee a max length of any title or anything,
-                    // we can control the white space to be pretty like.
-
-                    System.out.println("Song | Artist | Album | Song Genre | Total Plays");
-                    while( rs.next() ){
-                        String combined = "";
-                        combined += rs.getString("title");
-                        combined += " | " + rs.getString(6);
-                        combined += " | " + rs.getString(7);
-                        combined += " | " + rs.getString("genre");
-                        //combined += " | " + rs.getInt("count(p.timestamp)");
-                        System.out.println(combined);
-                    }
-
-
-                    return rs;
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }else{
-                System.out.println("That is not a valid input. Input 'y' to try again.");
-                String input = scan.nextLine();
-                input = input.toLowerCase();
-                if( input.equals("y")){
-                    //we're going again
-                }else{
-                    //guess they're giving up
-                    return null;
-                }
-            }
+    private static enum SearchKind { Song, Artist, Album, Genre }
+    private static enum SortKind { Song, Artist, Genre, Release }
+    private static enum SortOrder { Asc, Desc }
+    // These three maps are used for parsing input
+    private static Map<String, SearchKind> searchKinds = Map.of(
+            "song name", SearchKind.Song,
+            "artist",    SearchKind.Artist,
+            "album",     SearchKind.Album,
+            "genre",     SearchKind.Genre
+    );
+    private static Map<String, SortKind> sortKinds = Map.of(
+            "song name",   SortKind.Song,
+            "artist name", SortKind.Artist,
+            "genre",       SortKind.Genre,
+            "release year", SortKind.Release
+    );
+    private static Map<String, SortOrder> sortOrders = Map.of(
+            "ascending",   SortOrder.Asc,
+            "descending",  SortOrder.Desc
+    );
+    // These four maps are used for generating SQL
+    private static Map<SearchKind, String> searchKindsSql = Map.of(
+            SearchKind.Song, "s.title",
+            SearchKind.Artist, "a.name",
+            SearchKind.Album, "alb.name",
+            SearchKind.Genre, "s.genre"
+    );
+    private static Map<SortKind, String> sortKindsSql = Map.of(
+            SortKind.Song,    "s.title",
+            SortKind.Artist,  "a.name",
+            SortKind.Genre,   "alb.name",
+            SortKind.Release, "s.genre"
+    );
+    private static Map<SortKind, String> sortKindFallbacksSql = Map.of(
+            SortKind.Song,    "a.name ASC",
+            SortKind.Artist,  "s.title ASC",
+            SortKind.Genre,   "s.title ASC, a.name ASC",
+            SortKind.Release, "s.title ASC, a.name ASC"
+    );
+    private static Map<SortOrder, String> sortOrderSql = Map.of(
+            SortOrder.Asc,  "ASC",
+            SortOrder.Desc, "DESC"
+    );
+    // This class is used to represent the results
+    private static class SearchResult {
+        String song;
+        String album;
+        String artist;
+        String genre;
+        int plays;
+        SearchResult(String song, String album, String artist, String genre, int plays) {
+            // java give me a better way to do this, c'mon
+            this.song = song; this.album = album; this.artist = artist;
+            this.genre = genre; this.plays = plays;
         }
-        return null;
+    }
+    public static ResultSet searchSong( Connection conn, Scanner scan ) throws SQLException {
+
+        // First we need to figure out what kind of search this is
+        SearchKind searchKind = null;
+        SortKind sortKind = null;
+        SortOrder sortOrder = null;
+
+        // We'll keep track of this so we know what to ask the user for later on
+        // It's just a string version of searchKind though
+        String searchKindInput = "this will be overwritten";
+
+        while(searchKind == null) {
+            // Keep asking the user until we get a good answer!
+            System.out.println("Search by 'song name', 'artist', 'album', or 'genre'");
+            searchKindInput = scan.nextLine().strip().toLowerCase();
+            searchKind = searchKinds.get(searchKindInput);
+            if(searchKind == null)
+                System.out.println("Oops, please choose a valid option.\n");
+        }
+        while(sortKind == null) {
+            // This is basically the exact same thing as the previous loop, but for sort
+            System.out.println("Sort by 'song name','artist name','genre', or 'release year'");
+            String input = scan.nextLine().strip().toLowerCase();
+            sortKind = sortKinds.get(input);
+            if(sortKind == null)
+                System.out.println("Oops, please choose a valid option.\n");
+        }
+        while(sortOrder == null) {
+            System.out.println("Sort 'ascending' or 'descending'");
+            String input = scan.nextLine().strip().toLowerCase();
+            sortOrder = sortOrders.get(input);
+            if(sortOrder == null)
+                System.out.println("Oops, please choose a valid option.\n");
+        }
+
+        // Now to get what the user actually wants to search up!
+        System.out.format("Please enter the %s to search for%n", searchKindInput);
+        // We surround it with percent signs so that we can match any string containing
+        // this value.  We don't sanitize for pattern characters, but hopefully no songs
+        // have weirdo characters
+        String searchParameter = "%" + scan.nextLine().strip().toLowerCase() + "%";
+
+        // Time to build the statement!
+        //
+        // We need to diplay:
+        // - Song
+        // - Artist
+        // - Album
+        // - Song Genre
+        // - Total Plays
+        //
+        // To retrieve for other methods to use:
+        // - s.sid
+        // - s.length
+        // - YEAR(s.release_date) as year
+        // - a.artist_id
+        // - alb.album_id
+        // - number of plays as totalPlay
+        //
+        // Which requires joining
+        // - song -> song_artist -> artist
+        // - song -> album_song -> album
+        // - song -> play
+        //
+        // Then apply the sort and search that the user specified
+        //
+        // (i think this query might duplicate results when there's multiple artists, but
+        // uhhhh that's an edge case?)
+        String query = String.format(
+            // a very normal way of writing strings
+            " SELECT                                            " +
+            "     s.sid,                                        " +
+            "     s.length,                                     " +
+            "     s.title,                                      " +
+            "     s.genre as song_genre,                        " +
+            "     EXTRACT(year FROM s.release_date) as year,    " +
+            "     a.artist_id,                                  " +
+            "     a.name AS artist_name,                        " +
+            "     alb.album_id,                                 " +
+            "     alb.name AS album_name,                       " +
+            "     COUNT(play.sid) as totalPlay                  " +
+            " FROM p320_12.song AS s                            " +
+            " JOIN p320_12.song_artist                          " +
+            "     AS sa                                         " +
+            "     ON sa.sid = s.sid                             " +
+            " JOIN p320_12.artist                               " +
+            "     AS a                                          " +
+            "     ON sa.artist_id = a.artist_id                 " +
+            " JOIN p320_12.album_song                           " +
+            "     AS albs                                       " +
+            "     ON s.sid = albs.sid                           " +
+            " JOIN p320_12.album                                " +
+            "     AS alb                                        " +
+            "     ON albs.album_id = alb.album_id               " +
+            " LEFT JOIN p320_12.play                            " +
+            "     AS play                                       " +
+            "     ON play.sid = s.sid                           " +
+            " WHERE LOWER(%s) SIMILAR TO ?                      " +
+            " GROUP BY                                          " +
+            "     s.sid, sa.sid, sa.artist_id, a.artist_id,     " +
+            "     albs.sid, albs.album_id, alb.album_id         " +
+            " ORDER BY %s %s, %s                                " +
+            " LIMIT 50;                                         "
+        ,
+            searchKindsSql.get(searchKind),
+            sortKindsSql.get(sortKind),
+            sortOrderSql.get(sortOrder),
+            sortKindFallbacksSql.get(sortKind)
+        );
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setString(1, searchParameter);
+
+        // and now we RUN!  THAT!  QUERY!!
+        ResultSet rs = statement.executeQuery();
+
+        // The first time iterating through we're just gonna store the data accessibly
+        // But we also keep track of the max length of each of the fields (for display
+        // purposes)
+        int maxSong   = 4;
+        int maxArtist = 6;
+        int maxAlbum  = 5;
+        int maxGenre  = 5;
+        ArrayList<SearchResult> results = new ArrayList(50);
+        while( rs.next() ){
+            SearchResult result = new SearchResult(
+                rs.getString("title"),
+                rs.getString("album_name"),
+                rs.getString("artist_name"),
+                rs.getString("song_genre"),
+                rs.getInt("totalPlay")
+            );
+            maxSong   = Math.max(maxSong,   result.song.length()  );
+            maxArtist = Math.max(maxArtist, result.artist.length());
+            maxAlbum  = Math.max(maxAlbum,  result.album.length() );
+            maxGenre  = Math.max(maxGenre,  result.genre.length() );
+            results.add(result);
+        }
+
+        // And now that we have all that, we can print it!
+        String formatSpecifier = String.format(
+            "%%-%ds | %%-%ds | %%-%ds | %%-%ds | %%d%n", // getting pretty meta here
+            maxSong,
+            maxArtist,
+            maxAlbum,
+            maxGenre
+        );
+        // Print the header first though
+        System.out.format(
+            String.format(
+                "%%-%ds | %%-%ds | %%-%ds | %%-%ds | %%s%n%s+%s+%s+%s+-------------%n",
+                maxSong,
+                maxArtist,
+                maxAlbum,
+                maxGenre,
+                "-".repeat(maxSong   + 1),
+                "-".repeat(maxArtist + 2),
+                "-".repeat(maxAlbum  + 2),
+                "-".repeat(maxGenre  + 2)
+            ),
+            "Song", "Artist", "Album", "Genre", "Total Plays"
+        );
+        for(SearchResult result : results)
+            System.out.format(formatSpecifier,
+                result.song,
+                result.artist,
+                result.album,
+                result.genre,
+                result.plays
+            );
+
+        // Reset the result set so the next people can use it
+        // rs.first(); //hmm yeah this doesn't work
+        return rs;
     }
 
     /**
