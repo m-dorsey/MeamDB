@@ -259,13 +259,13 @@ public class Main {
             System.out.println("Which song would you like to add?");
             ResultSet songToAdd = searchSong(conn, scan);
             stmt.executeQuery("insert into p320_12.song_collection "
-                + "(" + rs.getString("s.sid") +", " + collection.getString("cid") + ")");
+                + "(" + rs.getInt("s.sid") +", " + collection.getInt("cid") + ")");
         }
         else if(modification.equals("remove song")){
             System.out.println("Which song would you like to remove?");
             ResultSet songToRemove = searchSong(conn, scan);
             stmt.executeQuery("delete from p320_12.song_collection where p320_12.song_collection.sid = "
-                 + rs.getString("s.sid") + " and p320_12.song_collection.cid = "+ collection.getString("cid"));
+                 + rs.getInt("s.sid") + " and p320_12.song_collection.cid = "+ collection.getInt("cid"));
         }
         else{
             System.out.println("Invalid modification. Please try again");
