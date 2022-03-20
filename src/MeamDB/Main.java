@@ -286,7 +286,7 @@ public class Main {
         if(modification.equals("add song")){
             System.out.println("Which song would you like to add?");
             ResultSet songToAdd = searchSong(conn, scan, false);
-            if( songToAdd.next() ) {
+            while( songToAdd.next()){
 
 
                 stmt.execute("insert into p320_12.song_collection(sid, cid) values "
@@ -296,7 +296,7 @@ public class Main {
         else if(modification.equals("remove song")){
             System.out.println("Which song would you like to remove?");
             ResultSet songToRemove = searchSong(conn, scan, false);
-            if(songToRemove.next()) {
+            while (songToRemove.next()){
                 stmt.execute("delete from p320_12.song_collection where p320_12.song_collection.sid = "
                     + songToRemove.getInt("sid") + " and p320_12.song_collection.cid = " + collectionID);
             }
@@ -317,20 +317,29 @@ public class Main {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid);
+            if( printing ) {
+                System.out.println("collection name | total songs | total duration"  );
 
-            while( rs.next() ){
-                if( printing ) {
+                while (rs.next()) {
+
                     Statement stmt2 = conn.createStatement();
                     ResultSet data = stmt2.executeQuery("select count(s.sid) as num, sum(s.length) as time from p320_12.song s, p320_12.song_collection c where s.sid = c.sid and c.cid = " + rs.getInt("cid"));
 
                     data.next();
-                    System.out.println(rs.getString("name") + " | " + data.getInt(1)  + " | " + data.getInt(2));
+
+                    int totalseconds = data.getInt(2);
+
+                    int minutes = totalseconds / 60;
+                    int seconds = totalseconds % 60;
+                    System.out.format(
+                        "%s | %d | %d:%02d%n",
+                        rs.getString("name"),
+                        data.getInt(1),
+                        minutes,
+                        seconds
+                    );
 
 
-                }else{
-                    //we just don't print. This exists, so we can
-                    // easily get all the collections for the
-                    // play collection function.
                 }
             }
 
@@ -456,12 +465,12 @@ public class Main {
 
                     //get all the songs in that collection
                     Statement stmt = conn.createStatement();
-                    ResultSet songs = stmt.executeQuery("select sid from song_collection where cid = " + collectionID);
+                    ResultSet songs = stmt.executeQuery("select sid from p320_12.song_collection where cid = " + collectionID);
 
                     //mark all the songs as played
                     while( songs.next() ){
                         Statement stmt2 = conn.createStatement();
-                        stmt2.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getInt("sid") + ", Current TIME CURRENT_TIMESTAMP)" );
+                        stmt2.execute("insert into p320_12.play(uid,sid,timestamp) values ('" + uid + "', '" + songs.getInt("sid") + "', CURRENT_TIMESTAMP)" );
                     }
 
 
@@ -482,12 +491,10 @@ public class Main {
         ResultSet rs = searchSong(conn, scan, false);
 
         if (rs.next()) {
-            System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
+            System.out.println("Now playing " + rs.getString("title") + " by " + rs.getString("artist_name"));
             Statement stmt = conn.createStatement();
-            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getInt("s.sid") +
-                ", Current TIME CURRENT_TIMESTAMP)");
-            stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = "
-                + rs.getString("s.sid"));
+            stmt.execute("insert into p320_12.play(uid,sid,timestamp) values (" + uid + ", " + rs.getInt("sid") +
+                ", CURRENT_TIMESTAMP)");
         }
         else{
             System.out.println("No song available");
