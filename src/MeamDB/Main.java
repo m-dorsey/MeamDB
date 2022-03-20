@@ -44,7 +44,7 @@ public class Main {
 
 			System.out.println("invalid login. 'y' to try again. anything else to exit.");
 			input = scan.nextLine();
-        } while (!input.equalsIgnoreCase("y"));
+        } while (input.equalsIgnoreCase("y"));
 
 		// User chose not to log in
         return -1;
@@ -254,20 +254,30 @@ public class Main {
         ResultSet collection = stmt.executeQuery("select * from p320_12.collection where p320_12.collection.uid = "
             + uid + " and p320_12.collection.name = '" + collectionName + "'");
 
+        collection.next();
+
+        int collectionID = collection.getInt("cid");
+
         System.out.println("How would you like to modify " + collectionName + "? Add song | Remove song");
         String modification = scan.nextLine();
         modification = modification.toLowerCase();
         if(modification.equals("add song")){
             System.out.println("Which song would you like to add?");
-            ResultSet songToAdd = searchSong(conn, scan);
-            stmt.executeQuery("insert into p320_12.song_collection "
-                + "(" + rs.getInt("s.sid") +", " + collection.getInt("cid") + ")");
+            ResultSet songToAdd = searchSong(conn, scan, false);
+            if( songToAdd.next() ) {
+
+
+                stmt.execute("insert into p320_12.song_collection(sid, cid) values "
+                    + "('" + songToAdd.getInt("sid") + "','" + collectionID + "')");
+            }
         }
         else if(modification.equals("remove song")){
             System.out.println("Which song would you like to remove?");
-            ResultSet songToRemove = searchSong(conn, scan);
-            stmt.executeQuery("delete from p320_12.song_collection where p320_12.song_collection.sid = "
-                 + rs.getInt("s.sid") + " and p320_12.song_collection.cid = "+ collection.getInt("cid"));
+            ResultSet songToRemove = searchSong(conn, scan, false);
+            if(songToRemove.next()) {
+                stmt.execute("delete from p320_12.song_collection where p320_12.song_collection.sid = "
+                    + songToRemove.getInt("sid") + " and p320_12.song_collection.cid = " + collectionID);
+            }
         }
         else{
             System.out.println("Invalid modification. Please try again");
@@ -289,7 +299,7 @@ public class Main {
             while( rs.next() ){
                 if( printing ) {
                     Statement stmt2 = conn.createStatement();
-                    ResultSet data = stmt2.executeQuery("select count(s.sid) as num, sum(s.length) as time from p320_12.song s, p320_12.collection c where s.sid = c.cid and c.cid = " + rs.getInt("cid"));
+                    ResultSet data = stmt2.executeQuery("select count(s.sid) as num, sum(s.length) as time from p320_12.song s, p320_12.song_collection c where s.sid = c.sid and c.cid = " + rs.getInt("cid"));
 
                     data.next();
                     System.out.println(rs.getString("name") + " | " + data.getInt(1)  + " | " + data.getInt(2));
@@ -447,7 +457,7 @@ public class Main {
 
 
     public static boolean playSong( Connection conn, Scanner scan, int uid ) throws SQLException {
-        ResultSet rs = searchSong(conn, scan);
+        ResultSet rs = searchSong(conn, scan, false);
 
         if (rs.next()) {
             System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
@@ -520,7 +530,7 @@ public class Main {
             this.genre = genre; this.plays = plays;
         }
     }
-    public static ResultSet searchSong( Connection conn, Scanner scan ) throws SQLException {
+    public static ResultSet searchSong( Connection conn, Scanner scan, boolean printing ) throws SQLException {
 
         // First we need to figure out what kind of search this is
         SearchKind searchKind = null;
@@ -531,27 +541,27 @@ public class Main {
         // It's just a string version of searchKind though
         String searchKindInput = "this will be overwritten";
 
-        while(searchKind == null) {
+        while (searchKind == null) {
             // Keep asking the user until we get a good answer!
             System.out.println("Search by 'song name', 'artist', 'album', or 'genre'");
             searchKindInput = scan.nextLine().strip().toLowerCase();
             searchKind = searchKinds.get(searchKindInput);
-            if(searchKind == null)
+            if (searchKind == null)
                 System.out.println("Oops, please choose a valid option.\n");
         }
-        while(sortKind == null) {
+        while (sortKind == null) {
             // This is basically the exact same thing as the previous loop, but for sort
             System.out.println("Sort by 'song name','artist name','genre', or 'release year'");
             String input = scan.nextLine().strip().toLowerCase();
             sortKind = sortKinds.get(input);
-            if(sortKind == null)
+            if (sortKind == null)
                 System.out.println("Oops, please choose a valid option.\n");
         }
-        while(sortOrder == null) {
+        while (sortOrder == null) {
             System.out.println("Sort 'ascending' or 'descending'");
             String input = scan.nextLine().strip().toLowerCase();
             sortOrder = sortOrders.get(input);
-            if(sortOrder == null)
+            if (sortOrder == null)
                 System.out.println("Oops, please choose a valid option.\n");
         }
 
@@ -591,39 +601,39 @@ public class Main {
         String query = String.format(
             // a very normal way of writing strings
             " SELECT                                            " +
-            "     s.sid,                                        " +
-            "     s.length,                                     " +
-            "     s.title,                                      " +
-            "     s.genre as song_genre,                        " +
-            "     EXTRACT(year FROM s.release_date) as year,    " +
-            "     a.artist_id,                                  " +
-            "     a.name AS artist_name,                        " +
-            "     alb.album_id,                                 " +
-            "     alb.name AS album_name,                       " +
-            "     COUNT(play.sid) as totalPlay                  " +
-            " FROM p320_12.song AS s                            " +
-            " JOIN p320_12.song_artist                          " +
-            "     AS sa                                         " +
-            "     ON sa.sid = s.sid                             " +
-            " JOIN p320_12.artist                               " +
-            "     AS a                                          " +
-            "     ON sa.artist_id = a.artist_id                 " +
-            " JOIN p320_12.album_song                           " +
-            "     AS albs                                       " +
-            "     ON s.sid = albs.sid                           " +
-            " JOIN p320_12.album                                " +
-            "     AS alb                                        " +
-            "     ON albs.album_id = alb.album_id               " +
-            " LEFT JOIN p320_12.play                            " +
-            "     AS play                                       " +
-            "     ON play.sid = s.sid                           " +
-            " WHERE LOWER(%s) SIMILAR TO ?                      " +
-            " GROUP BY                                          " +
-            "     s.sid, sa.sid, sa.artist_id, a.artist_id,     " +
-            "     albs.sid, albs.album_id, alb.album_id         " +
-            " ORDER BY %s %s, %s                                " +
-            " LIMIT 50;                                         "
-        ,
+                "     s.sid,                                        " +
+                "     s.length,                                     " +
+                "     s.title,                                      " +
+                "     s.genre as song_genre,                        " +
+                "     EXTRACT(year FROM s.release_date) as year,    " +
+                "     a.artist_id,                                  " +
+                "     a.name AS artist_name,                        " +
+                "     alb.album_id,                                 " +
+                "     alb.name AS album_name,                       " +
+                "     COUNT(play.sid) as totalPlay                  " +
+                " FROM p320_12.song AS s                            " +
+                " JOIN p320_12.song_artist                          " +
+                "     AS sa                                         " +
+                "     ON sa.sid = s.sid                             " +
+                " JOIN p320_12.artist                               " +
+                "     AS a                                          " +
+                "     ON sa.artist_id = a.artist_id                 " +
+                " JOIN p320_12.album_song                           " +
+                "     AS albs                                       " +
+                "     ON s.sid = albs.sid                           " +
+                " JOIN p320_12.album                                " +
+                "     AS alb                                        " +
+                "     ON albs.album_id = alb.album_id               " +
+                " LEFT JOIN p320_12.play                            " +
+                "     AS play                                       " +
+                "     ON play.sid = s.sid                           " +
+                " WHERE LOWER(%s) SIMILAR TO ?                      " +
+                " GROUP BY                                          " +
+                "     s.sid, sa.sid, sa.artist_id, a.artist_id,     " +
+                "     albs.sid, albs.album_id, alb.album_id         " +
+                " ORDER BY %s %s, %s                                " +
+                " LIMIT 50;                                         "
+            ,
             searchKindsSql.get(searchKind),
             sortKindsSql.get(sortKind),
             sortOrderSql.get(sortOrder),
@@ -638,57 +648,61 @@ public class Main {
         // The first time iterating through we're just gonna store the data accessibly
         // But we also keep track of the max length of each of the fields (for display
         // purposes)
-        int maxSong   = 4;
+        int maxSong = 4;
         int maxArtist = 6;
-        int maxAlbum  = 5;
-        int maxGenre  = 5;
+        int maxAlbum = 5;
+        int maxGenre = 5;
         ArrayList<SearchResult> results = new ArrayList(50);
-        while( rs.next() ){
-            SearchResult result = new SearchResult(
-                rs.getString("title"),
-                rs.getString("album_name"),
-                rs.getString("artist_name"),
-                rs.getString("song_genre"),
-                rs.getInt("totalPlay")
-            );
-            maxSong   = Math.max(maxSong,   result.song.length()  );
-            maxArtist = Math.max(maxArtist, result.artist.length());
-            maxAlbum  = Math.max(maxAlbum,  result.album.length() );
-            maxGenre  = Math.max(maxGenre,  result.genre.length() );
-            results.add(result);
-        }
 
-        // And now that we have all that, we can print it!
-        String formatSpecifier = String.format(
-            "%%-%ds | %%-%ds | %%-%ds | %%-%ds | %%d%n", // getting pretty meta here
-            maxSong,
-            maxArtist,
-            maxAlbum,
-            maxGenre
-        );
-        // Print the header first though
-        System.out.format(
-            String.format(
-                "%%-%ds | %%-%ds | %%-%ds | %%-%ds | %%s%n%s+%s+%s+%s+-------------%n",
+        if (printing) {
+            while (rs.next()) {
+                SearchResult result = new SearchResult(
+                    rs.getString("title"),
+                    rs.getString("album_name"),
+                    rs.getString("artist_name"),
+                    rs.getString("song_genre"),
+                    rs.getInt("totalPlay")
+                );
+                maxSong = Math.max(maxSong, result.song.length());
+                maxArtist = Math.max(maxArtist, result.artist.length());
+                maxAlbum = Math.max(maxAlbum, result.album.length());
+                maxGenre = Math.max(maxGenre, result.genre.length());
+                results.add(result);
+            }
+
+
+            // And now that we have all that, we can print it!
+            String formatSpecifier = String.format(
+                "%%-%ds | %%-%ds | %%-%ds | %%-%ds | %%d%n", // getting pretty meta here
                 maxSong,
                 maxArtist,
                 maxAlbum,
-                maxGenre,
-                "-".repeat(maxSong   + 1),
-                "-".repeat(maxArtist + 2),
-                "-".repeat(maxAlbum  + 2),
-                "-".repeat(maxGenre  + 2)
-            ),
-            "Song", "Artist", "Album", "Genre", "Total Plays"
-        );
-        for(SearchResult result : results)
-            System.out.format(formatSpecifier,
-                result.song,
-                result.artist,
-                result.album,
-                result.genre,
-                result.plays
+                maxGenre
             );
+            // Print the header first though
+            System.out.format(
+                String.format(
+                    "%%-%ds | %%-%ds | %%-%ds | %%-%ds | %%s%n%s+%s+%s+%s+-------------%n",
+                    maxSong,
+                    maxArtist,
+                    maxAlbum,
+                    maxGenre,
+                    "-".repeat(maxSong + 1),
+                    "-".repeat(maxArtist + 2),
+                    "-".repeat(maxAlbum + 2),
+                    "-".repeat(maxGenre + 2)
+                ),
+                "Song", "Artist", "Album", "Genre", "Total Plays"
+            );
+            for (SearchResult result : results)
+                System.out.format(formatSpecifier,
+                    result.song,
+                    result.artist,
+                    result.album,
+                    result.genre,
+                    result.plays
+                );
+        }
 
         // Reset the result set so the next people can use it
         // rs.first(); //hmm yeah this doesn't work
@@ -854,7 +868,7 @@ public class Main {
 
                 }
                 else if (input.equals("search song")) {
-                    searchSong(conn, scan);
+                    searchSong(conn, scan, true);
 
                 }
                 else if (input.equals("rename collection")) {
