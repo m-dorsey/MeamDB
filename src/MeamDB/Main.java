@@ -331,7 +331,13 @@ public class Main {
 
                     int minutes = totalseconds / 60;
                     int seconds = totalseconds % 60;
-                    System.out.println(rs.getString("name") + " | " + data.getInt(1) + " | " + minutes + ":" + seconds);
+                    System.out.format(
+                        "%s | %d | %d:%02d%n",
+                        rs.getString("name"),
+                        data.getInt(1),
+                        minutes,
+                        seconds
+                    );
 
 
                 }
