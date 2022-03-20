@@ -326,7 +326,13 @@ public class Main {
                     ResultSet data = stmt2.executeQuery("select count(s.sid) as num, sum(s.length) as time from p320_12.song s, p320_12.song_collection c where s.sid = c.sid and c.cid = " + rs.getInt("cid"));
 
                     data.next();
-                    System.out.println(rs.getString("name") + " | " + data.getInt(1) + " | " + data.getInt(2));
+
+                    int totalseconds = data.getInt(2);
+
+                    int minutes = totalseconds / 60;
+                    int seconds = totalseconds % 60;
+                    System.out.println(rs.getString("name") + " | " + data.getInt(1) + " | " + minutes + ":" + seconds);
+
 
                 }
             }
