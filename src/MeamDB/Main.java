@@ -286,7 +286,7 @@ public class Main {
         if(modification.equals("add song")){
             System.out.println("Which song would you like to add?");
             ResultSet songToAdd = searchSong(conn, scan, false);
-            if( songToAdd.next() ) {
+            while( songToAdd.next()){
 
 
                 stmt.execute("insert into p320_12.song_collection(sid, cid) values "
@@ -296,7 +296,7 @@ public class Main {
         else if(modification.equals("remove song")){
             System.out.println("Which song would you like to remove?");
             ResultSet songToRemove = searchSong(conn, scan, false);
-            if(songToRemove.next()) {
+            while (songToRemove.next()){
                 stmt.execute("delete from p320_12.song_collection where p320_12.song_collection.sid = "
                     + songToRemove.getInt("sid") + " and p320_12.song_collection.cid = " + collectionID);
             }
@@ -481,10 +481,8 @@ public class Main {
         if (rs.next()) {
             System.out.println("Now playing" + rs.getString("s.title") + " by " + rs.getString("a.name"));
             Statement stmt = conn.createStatement();
-            stmt.executeQuery("insert into p320_12.play (" + uid + ", " + rs.getInt("s.sid") +
-                ", Current TIME CURRENT_TIMESTAMP)");
-            stmt.executeQuery("update p320_12.song set p320_12.song.count = p320_12.song.count + 1 where p320_12.song.sid = "
-                + rs.getString("s.sid"));
+            stmt.execute("insert into p320_12.play(uid,sid,timestamp) values (" + uid + ", " + rs.getInt("s.sid") +
+                ", CURRENT_TIMESTAMP)");
         }
         else{
             System.out.println("No song available");
