@@ -23,26 +23,19 @@ Student 4 tts1848: Emi Simpson\\
     \section{Introduction}
     For this project, we would like to work with the Music Domain
     and our backup option will be the Recipes Domain. We plan to
-    implement our project using Java and JavaFX.
+    implement our project using Java.
     \\~\\
     \noindent Our database application will be run through the command line
-    and will feature a JavaFX GUI in order to obtain input from the
-    user. We will design the application to be highly usable, provide
-    user security, data integrity, and efficient access to the stored data.
+    and will feature frequent user interaction in order to perform the desired
+    commands from the user. We will design the application to be highly usable,
+    provide user security, data integrity, and efficient access to the stored data.
 
     \section{Design}
     \subsection{Conceptual Model}
     While our ER Diagram will list an 'id' attribute for each of our entity types,
     in order to distinguish between these unique keys in relationship tables, the
     following will apply to all entity identifiers:
-    \\~\\
-    \begin{tasks}
-        \task Album: album\_id
-        \task Artist: artist\_id
-        \task Song: sid
-        \task User: uid
-        \task Collection: cid
-    \end{tasks}
+
     \\~\\
 
     \includegraphics[width=5.5in]{ER-Diagram.png}
@@ -52,11 +45,12 @@ Student 4 tts1848: Emi Simpson\\
     \\~\\
     For our ER diagram, we first decided to have five entity types:
     Artist, Song, Collection, Album, and User. We gave entity type User the attributes
-    username, password, composite attribute name (first\_name, last\_name), email, and
-    last\_login. The email and username will have the restriction that it must be unique
+    username, password, composite attribute name (first\_name, last\_name), email,
+    last\_login, and creation\_date. The email and username will have the restriction that it must be unique
     for each user. The key for User will be a uid that is generated when a new user is
-    created. The uid will allow users to update their name, email, and password without
-    changing the key.
+    created and will allow users to update their name, email, and password without
+    changing the key. The last\_login and creation\_date attributed will be populated by the program
+    to track every user login and store when a new user account is first created.
     \\~\\
     We gave the Artist the attributes name, and the key artist\_id that
     will be generated when an artist is created. This will allow artists to change their
@@ -64,12 +58,11 @@ Student 4 tts1848: Emi Simpson\\
     name will have the restriction that it must be unique to the artist.
     \\~\\
     The Album entity type has the attributes name and release\_date, and the
-    genre that will be derived based on the artist(s) who made it. The genre will be
-    multivalued as well, as many albums or artists can span multiple genres. The key
+    genre that will be derived based on the artist who made it. The key
     attribute will be an album\_id generated when an album is created. This allows albums
     with the same name and albums with multiple artists.
     \\~\\
-    In our design, Song has title, length, genre, release\_date. We will
+    In our design, Song has title, length, genre, and release\_date. We will
     generate a sid to be the key attribute to allow us to distinguish between songs with
     the same name, length, artist and release\_date.
     \\~\\
@@ -84,12 +77,12 @@ Student 4 tts1848: Emi Simpson\\
         \item Song( \underline{sid}, length, title, genre, release\_date )
         \item User( \underline{uid}, username, password, fname, lname, email, last\_login, creation\_date )
         \item Collection( \underline{cid}, name, \emph{uid} )
-        \item Album\_Song( \underline{ \emph{album\_id} }, \underline{ \emph{sid} }, track\_number )
-        \item Album\_Artist( \underline{ \emph{album\_id} }, \underline{ \emph{artist\_id} } )
-        \item Song\_Artist( \underline{ \emph{sid} }, \underline{ \emph{artist\_id} } )
-        \item Song\_Collection( \underline{ \emph{sid} }, \underline{ \emph{cid} } )
-        \item Follower( \underline{ \emph{follower} }, \underline{ \emph{followed} } )
-        \item Play( \underline{ \emph{uid} }, \underline{ \emph{sid} }, last\_time\_listened )
+        \item Album\_Song( \emph{album\_id}, \emph{sid}, track\_number )
+        \item Album\_Artist( \emph{album\_id}, \emph{artist\_id} )
+        \item Song\_Artist( \emph{sid}, \emph{artist\_id} )
+        \item Song\_Collection( \emph{sid}, \emph{cid} )
+        \item Follower( \emph{follower}, \emph{followed} )
+        \item Play( \emph{uid}, \emph{sid}, last\_time\_listened )
     \end{itemize}
     \\~\\
     We created separate tables (Album, Artist, Song, Collection, User) for each of our
@@ -121,10 +114,79 @@ Student 4 tts1848: Emi Simpson\\
 %
     \subsection{Data Requirements/Constraints}
     In the Follower relationship table, both of the foreign keys, follower and followed, reference the User's uid. These 2 uid fields cannot be the same because the User is not allowed to follow themselves.
-
     \\~\\
+    All of the following attributes in our tables are required to be not null:
 
-    All of the attributes in our tables are required to be not null.
+    \begin{itemize}
+        \item Album Attributes
+            \begin{itemize}
+                \item album\_id
+                \item name
+                \item release\_date
+            \end{itemize}
+        \item Album\_Artist Attributes
+            \begin{itemize}
+                \item album\_id
+                \item artist\_id
+            \end{itemize}
+        \item Album\_Song Attributes
+            \begin{itemize}
+                \item album\_id
+                \item sid
+                \item track\_number
+            \end{itemize}
+        \item Artist Attributes
+            \begin{itemize}
+                \item artist\_id
+                \item name
+            \end{itemize}
+        \item Collection Attributes
+            \begin{itemize}
+                \item cid
+                \item name
+                \item uid
+            \end{itemize}
+        \item Follower Attributes
+            \begin{itemize}
+                \item follower
+                \item followed
+            \end{itemize}
+        \item Play Attributes
+            \begin{itemize}
+                \item uid
+                \item sid
+                \item timestamp
+            \end{itemize}
+        \item Song Attributes
+            \begin{itemize}
+                \item sid
+                \item length
+                \item title
+                \item genre
+                \item release\_date
+            \end{itemize}
+        \item Song\_Artist Attributes
+            \begin{itemize}
+                \item sid
+                \item artist\_id
+            \end{itemize}
+        \item Song\_Collection Attributes
+            \begin{itemize}
+                \item sid
+                \item cid
+            \end{itemize}
+        \item User Attributes
+        \begin{itemize}
+            \item uid
+            \item username
+            \item password
+            \item fname
+            \item lname
+            \item email
+            \item last\_login
+            \item creation\_date
+        \end{itemize}
+    \end{itemize}
 
     \subsection{Sample instance data}
 
@@ -229,7 +291,7 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             4 & Angry Super Bowl Music & 2 \\
             \hline
-            5 & Bath Time Breather & 2 \\
+            5 & Bath Time Breather & 4 \\
             \hline
         \end{tabular}
     \end{center}
@@ -241,7 +303,7 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{3}{|c|}{Album\_Song} \\
             \hline
-            \underline{ \emph{album\_id} } & \underline{ \emph{sid} } & track\_number \\
+            \emph{album\_id} & \emph{sid} & track\_number \\
             \hline
             7814 & 0 & 1 \\
             \hline
@@ -263,7 +325,7 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{2}{|c|}{Album\_Artist} \\
             \hline
-            \underline{ \emph{album\_id} } & \underline{ \emph{ artist\_id } } \\
+            \emph{album\_id} & \emph{ artist\_id } \\
             \hline
             0 & 1902 \\
             \hline
@@ -285,7 +347,7 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{2}{|c|}{Song\_Artist} \\
             \hline
-            \underline{ \emph{sid} } & \underline{ \emph{artist\_id} } \\
+            \emph{sid} & \emph{artist\_id} \\
             \hline
             0 & 4019 \\
             \hline
@@ -307,17 +369,17 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{2}{|c|}{Song\_Collection} \\
             \hline
-            \underline{ \emph{sid} } & \underline{ \emph{cid} } \\
+            \emph{sid} & \emph{cid} \\
             \hline
-            1 & 1 \\
+            13368 & 12 \\
             \hline
-            3 & 3 \\
+            2161 & 13 \\
             \hline
-            2 & 4 \\
+            11339 & 13 \\
             \hline
-            4 & 2 \\
+            3703 & 13 \\
             \hline
-            5 & 5 \\
+            10558 & 13 \\
             \hline
         \end{tabular}
     \end{center}
@@ -329,9 +391,11 @@ Student 4 tts1848: Emi Simpson\\
             \hline
             \rowcolor{tablegrey} \multicolumn{2}{|c|}{Follower} \\
             \hline
-            \underline{ \emph{Follower} } & \underline{ \emph{Followed} } \\
+            \emph{Follower} & \emph{Followed} \\
             \hline
             1 & 2 \\
+            \hline
+            7 & 6 \\
             \hline
         \end{tabular}
     \end{center}
@@ -341,23 +405,19 @@ Student 4 tts1848: Emi Simpson\\
     \begin{center}
         \begin{tabular}{ |c|c|c| }
             \hline
-            \rowcolor{tablegrey} \multicolumn{3}{|c|}{Plays} \\
+            \rowcolor{tablegrey} \multicolumn{3}{|c|}{Play} \\
             \hline
-            \underline{ \emph{uid} } & \underline{ \emph{sid} } & timestamp \\
+            \emph{uid} & \emph{sid} & timestamp \\
             \hline
-            1 & 1 & 2020-02-29 03:00:00.000 \\
+            6 & 1712 & 2020-03-20 10:43:30.302306 \\
             \hline
-            1 & 1 & 2020-02-29 03:02:49.600 \\
+            6 & 2161 & 2020-02-29 10:56:54.644090 \\
             \hline
-            1 & 2 & 2020-02-29 03:05:01.205 \\
+            7 & 2133 & 2020-02-29 03:05:01.205123 \\
             \hline
-            2 & 5 & 2020-02-18 13:02:00.345 \\
+            7 & 2134 & 2020-02-18 13:02:00.345236 \\
             \hline
-            2 & 3 & 2020-02-18 13:04:12.102 \\
-            \hline
-            2 & 1 & 2020-02-18 13:07:18.000 \\
-            \hline
-            2 & 5 & 2020-02-18 13:09:42.090 \\
+            7 & 754 & 2020-02-18 13:04:12.102078 \\
             \hline
         \end{tabular}
     \end{center}
@@ -365,10 +425,17 @@ Student 4 tts1848: Emi Simpson\\
 
 
     \section{Implementation}
-    Use this section to describe the overall implementation of your database. Include samples of SQL statements to create the tables (DDL statements) and a description of the ETL process, including examples of the SQL insert statements used to populate each table initially.
+    Use this section to describe the overall implementation of your database.
+    Include samples of SQL statements to create the tables (DDL statements) and
+    a description of the ETL process, including examples of the SQL insert statements
+    used to populate each table initially.
 
-    Include also sample of the SQL insert statements used in your application program to insert new data in the database. Finally, add an appendix of all the SQL statements created in your application during Phase 4 and a description of the indexes created to boost the performance of your application.
+    Include also sample of the SQL insert statements used in your application program
+    to insert new data in the database.
     \section{Data Analysis}
+    Finally, add an appendix of all the SQL statements
+    created in your application during Phase 4 and a description of the indexes created to
+    boost the performance of your application.
     \subsection{Hypothesis}
     Use this section to state the objectives of your data analysis; what are the observations you are expecting to find. Note that your final
     observations may end up differing from your proposal, that is also a valid result.
