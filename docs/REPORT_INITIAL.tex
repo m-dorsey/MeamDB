@@ -13,6 +13,10 @@
 \definecolor{pythonblue}{rgb}{0, 0, 0.6}
 \definecolor{pythonred}{rgb}{0.6, 0, 0}
 \definecolor{pythongreen}{rgb}{0, 0.5, 0}
+\definecolor{sqlgreen}{rgb}{0, 0.6, 0}
+\definecolor{sqlgray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{sqlred}{rgb}{0.78, 0, 0.32}
+
 \definecolor{tablegrey}{rgb}{0.9,0.9,0.9}
 %\graphicspath{ {images/} }
 
@@ -87,7 +91,7 @@ Student 4 tts1848: Emi Simpson\\
     Each Collection has a name and key attribute cid. We will calculate
     the no\_songs and total\_length based on the songs that are placed in the collection.
 
-    \subsection{Reduction to tables}
+    \subsection{Reduction to Tables}
 
     \begin{itemize}
         \item Album( \underline{album\_id}, name, release\_date )
@@ -206,7 +210,7 @@ Student 4 tts1848: Emi Simpson\\
             \end{tasks}
     \end{itemize}
 
-    \subsection{Sample instance data}
+    \subsection{Sample Instance Data}
 
     \begin{center}
         \begin{tabular}{ |c|c|c| }
@@ -449,29 +453,80 @@ Student 4 tts1848: Emi Simpson\\
     Our data was then accumulated together and cleaned to ensure every song has a single artist, no song
     is without a genre, the release date has the proper yyyy-mm-dd format and all special characters
     in the song titles or artist names (eg. \'{a}, \"{i}, \~{n}, etc.) were properly represented.
-    \\~\\
-    The data was uploaded into our database with a python script that parsed through our dataset.csv
-    file. It uses dataclasses, tuples, and lists to combine each table's representative
-    data before importing it into the database.
+
+    \subsubsection{Sample Create Statements}
+
     \lstset{
-        frame=tb,
-        language=Python,
-        aboveskip=3mm,
-        belowskip=3mm,
-        showstringspaces=false,
-        columns=flexible,
-        basicstyle=\ttfamily,
-        numbers=none,
-        numberstyle=\tiny\color{gray},
-        keywordstyle=\color{pythonblue}\bfseries,
-        commentstyle=\color{gray},
-        emphstyle=\ttb\color{pythonred},
-        stringstyle=\color{pythongreen},
-        breaklines=true,
-        breakatwhitespace=true,
-        tabsize=4
+    frame=tb,
+    language=SQL,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{sqlgray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{sqlgreen},
+    stringstyle=\color{sqlred},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
     }
     \begin{lstlisting}
+    CREATE TABLE song (
+        sid integer not null primary key,
+        length integer not null,
+        title varchar(255) not null,
+        genre varchar(127) not null,
+        release_date date not null
+    );
+
+    CREATE TABLE user (
+        uid integer default
+            nextval('p320_12.userids'::regclass)
+            not null primary key,
+        username varchar(127) not null
+            constraint unique_username unique,
+        password varchar(127) not null,
+        fname varchar(127) not null,
+        lname varchar(127) not null,
+        email varchar(127) not null
+            constraint unique_email unique,
+        last_login timestamp defualt CURRENT_TIMESTAMP
+        creation_date timestamp defualt CURRENT_TIMESTAMP
+    );
+    \end{lstlisting}
+    The data we acquired was uploaded into our database with a python script that parsed through our dataset.csv
+    file. It uses data classes, tuples, and lists to separate each table's representative data
+    and import it into our database.
+
+    \lstset{
+    frame=tb,
+    language=Python,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{pythonblue}\bfseries,
+    commentstyle=\color{gray},
+    emphstyle=\ttb\color{pythonred},
+    stringstyle=\color{pythongreen},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+    }
+    \begin{lstlisting}
+        artist_values = [(aid, artist.name) for artist, aid in artist_ids.items()]
+        album_values = [(aid, album.name, album.date) for album, aid in album_ids.items()]
+        track_values = [(tid, track.duration, track.title, track.genre, track.date) for track, tid in track_ids.items()]
+        song_artist_values = [(tid, artist_ids[track.artist]) for track, tid in track_ids.items()]
+        album_artist_values = [(aid, artist_ids[album.artist]) for album, aid in album_ids.items()]
+        album_song_values = [(album_ids[track.album], tid, track.track) for track, tid in track_ids.items()]
+
         def insert_many_statement(table: str, fields: List[str], n_records: int) -> sql.Composed:
             fields_sql = sql.SQL(',').join(
                 map(sql.Identifier, fields)
@@ -489,6 +544,67 @@ Student 4 tts1848: Emi Simpson\\
                 fields_sql,
                 all_values,
             )
+    \end{lstlisting}
+
+    
+    \subsubsection{Sample Insert Statements}
+    \lstset{
+    frame=tb,
+    language=SQL,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{sqlgray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{sqlgreen},
+    stringstyle=\color{sqlred},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+    }
+    \begin{lstlisting}
+    INSERT INTO p320_12.song(
+        sid, length, title, genre, release_date
+    ) VALUES (
+        66, 229, 'Love Somebody',
+        'Alternative r&b', 2012-01-01
+    )
+
+    INSERT INTO p320_12.artist(artist_id, name)
+    VALUES (51, 'Black Eyed Peas')
+
+    INSERT INTO p320_12.album(album_id, name, release_date)
+    VALUE (28, 'Pretty. Odd.', 2018-03-21)
+
+    \end{lstlisting}
+    All of the entity tables except User and Collection have already
+    been assigned unique entity IDs before they were populated into
+    the database. With the User and Collection entities, we altered the
+    tables to include a serial primary key for the ID through a sequence
+    to allow the unique ID attributes to auto increment upon insertion
+    into the respective tables.
+    \begin{lstlisting}
+    create sequence userids;
+    create sequence collection_ids
+    \end{lstlisting}
+    Due to the sequences, the below insert statements do not need to specify
+    a uid or cid attributes because those fields will be auto incrementing
+    to the next ID value whenever new data is entered into the table.
+    \begin{lstlisting}
+    INSERT INTO p320_12.user (
+        username, password, fname, lname,
+        email, last_login, creation_date
+    ) VALUES (
+        'LilBob', 'burger123', 'Gene', 'Belcher',
+        'genebelcher@gmail.com', CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
+    )
+
+    INSERT INTO p320_12.collection (name, uid)
+    VALUES ('Sing My Heart Out', 7)
     \end{lstlisting}
 
     \subsection{Java Implementation}
@@ -515,15 +631,15 @@ Student 4 tts1848: Emi Simpson\\
         tabsize=4
     }
     \begin{lstlisting}
-        /** User Login **/
-        PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE p320_12.user AS usr                   " +
-                "SET last_login = CURRENT_TIMESTAMP           " +
-                "FROM p320_12.user AS original                " +
-                "WHERE usr.username = ? AND usr.password = ?  " +
-                "AND original.uid = usr.uid                   " +
-                "RETURNING usr.uid, original.last_login       "
-        );
+    /** User Login **/
+    PreparedStatement stmt = conn.prepareStatement(
+            "UPDATE p320_12.user AS usr                   " +
+            "SET last_login = CURRENT_TIMESTAMP           " +
+            "FROM p320_12.user AS original                " +
+            "WHERE usr.username = ? AND usr.password = ?  " +
+            "AND original.uid = usr.uid                   " +
+            "RETURNING usr.uid, original.last_login       "
+    );
     \end{lstlisting}
     If the ResultSet of the query does not produce an error, it is a valid login.
     If there is an error, the user will be prompted to enter their credentials again
@@ -532,48 +648,48 @@ Student 4 tts1848: Emi Simpson\\
     During the process of creating an account, the entered username and email are
     subject to verification to ensure both inputs are unique to every user.
     \begin{lstlisting}
-        /** User Username Verification **/
-        String username = scan.nextLine();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(
-            "select * from p320_12.user"
-        );
-        while( rs.next() ) {
-            if ( rs.getString("username").equals(username) )
-                System.out.println(
-                    "That username is already in use."
-                );
-        }
+    /** User Username Verification **/
+    String username = scan.nextLine();
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery(
+        "select * from p320_12.user"
+    );
+    while( rs.next() ) {
+        if ( rs.getString("username").equals(username) )
+            System.out.println(
+                "That username is already in use."
+            );
+    }
 
-        /** User Email Verification **/
-        String email = scan.nextLine();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(
-            "select * from p320_12.user"
-        );
-        while( rs.next() ) {
-            if ( rs.getString("email").equals(username) )
-                System.out.println(
-                    "That email is already in use."
-                );
-        }
+    /** User Email Verification **/
+    String email = scan.nextLine();
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery(
+        "select * from p320_12.user"
+    );
+    while( rs.next() ) {
+        if ( rs.getString("email").equals(username) )
+            System.out.println(
+                "That email is already in use."
+            );
+    }
 
-        /** User Account Creation **/
-        PreparedStatement creationStatement = c.prepareStatement(
-                "INSERT INTO p320_12.user (
-                    "username, password, fname," +
-                    "lname, email) " +
-                "VALUES (?, ?, ?, ?, ?)" +
-                "RETURNING uid"
-        );
+    /** User Account Creation **/
+    PreparedStatement creationStatement = c.prepareStatement(
+            "INSERT INTO p320_12.user (" +
+                "username, password, fname," +
+                "lname, email) " +
+            "VALUES (?, ?, ?, ?, ?)" +
+            "RETURNING uid"
+    );
 
-		creationStatement.setString(1, username);
-		creationStatement.setString(2, password);
-		creationStatement.setString(3, fname);
-		creationStatement.setString(4, lname);
-		creationStatement.setString(5, email);
+    creationStatement.setString(1, username);
+    creationStatement.setString(2, password);
+    creationStatement.setString(3, fname);
+    creationStatement.setString(4, lname);
+    creationStatement.setString(5, email);
 
-        ResultSet rs = creationStatement.executeQuery();
+    ResultSet rs = creationStatement.executeQuery();
     \end{lstlisting}
     As shown through the username and email verification snippets,
     the user information is checked for uniqueness before the data
@@ -587,45 +703,42 @@ Student 4 tts1848: Emi Simpson\\
     through the database, the SearchKind, SortKind, and SortOrder enums
     are used to store user decisions before executing the query.
     \begin{lstlisting}
-        private static enum SearchKind
-            { Song, Artist, Album, Genre}
-        private static enum SortKind
-            { Song, Artist, Genre, Release }
-        private static enum SortOrder
-            { Asc, Desc }
+    private static enum SearchKind {Song, Artist, Album, Genre}
+    private static enum SortKind {Song, Artist, Genre, Release}
+    private static enum SortOrder {Asc, Desc}
     \end{lstlisting}
     One of the capabilities of our program is creating a new collection.
     This is done by prompting the user for a name for the new collection
     and ensuring the user does not already have a collection with the same
     name.
     \begin{lstlisting}
-        String collectionName = scan.nextLine();
+    String collectionName = scan.nextLine();
 
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(
-            "select * from p320_12.collection " +
-            "where p320_12.collection.uid = " + uid
-        );
-        while( rs.next() ) {
-            if ( rs.getString("name").equals(collectionName) ) {
-                System.out.println(
-                    "There already exists a collection " +
-                    "with that name"
-                );
-            }
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery(
+        "select * from p320_12.collection " +
+        "where p320_12.collection.uid = " + uid
+    );
+    while( rs.next() ) {
+        if ( rs.getString("name").equals(collectionName) ) {
+            System.out.println(
+                "There already exists a collection " +
+                "with that name"
+            );
         }
+    }
     \end{lstlisting}
     Once the collection name is determined to not be repeated, a new collection
     is created with the provided name and populated into the database.
     \begin{lstlisting}
-        stmt.executeUpdate(
-            "insert into p320_12.collection (name, uid) " +
-            "values ('" + collectionName + "', " + uid + ")"
-        );
-        System.out.println(
-            "Collection: " + collectionName +
-            " has been created"
-        );
+    stmt.executeUpdate(
+        "insert into p320_12.collection (name, uid) " +
+        "values ('" + collectionName + "', " + uid + ")"
+    );
+    System.out.println(
+        "Collection: " + collectionName +
+        " has been created"
+    );
     \end{lstlisting}
     To make sure all the actions are done on the correct user's account, their
     user id is stored and passed through every action method as they continue to perform
