@@ -368,8 +368,19 @@ public class Main {
         //  allow a user to expand a selected one.
 
         try {
+
+
+            Statement stmt3 = conn.createStatement();
+            ResultSet total = stmt3.executeQuery("select count(cid) as total from p320_12.collection where p320_12.collection.uid = " + uid );
+
+            if( total.next() && printing ) {
+                System.out.println("Total collections: " + total.getInt("total"));
+            }
+
+
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid);
+            ResultSet rs = stmt.executeQuery("select name, cid from p320_12.collection where p320_12.collection.uid = " + uid );
+
             if( printing ) {
                 System.out.println("collection name | total songs | total duration"  );
 
@@ -852,7 +863,7 @@ public class Main {
      * and allows the user to login and use the program by calling other functions. Once
      * the user is done using the program and exits, the database connection and SSH
      * connection are closed.
-     * 
+     *
      * @param args
      * @throws SQLException
      */
