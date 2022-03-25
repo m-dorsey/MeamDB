@@ -836,6 +836,12 @@ public class Main {
     }
 
 
+    /**
+     * This function print out the user's top 10
+     * most played artists
+     * @param conn        connection to the DB
+     * @param uid         user ID of the user to find the top 10 for
+     */
     public static void viewTopTen( Connection conn,  int uid ){
 
         //NOTE: the requirements is a little vague, but what we can
@@ -857,8 +863,6 @@ public class Main {
             while( rs.next() ){
                 System.out.println(rs.getString("name") + " | " + rs.getInt("total"));
             }
-
-
 
         }catch (Exception e ){
             e.printStackTrace();
@@ -887,7 +891,8 @@ public class Main {
                 "'play collection'         \t\t Play a collection\n" +
                 "'follow friend'           \t\t Follow a friend\n" +
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
-                "'exit'                    \t\t Exit the program\n"
+                "'exit'                    \t\t Exit the program\n" +
+                "'view my top 10 artists   \t\t Displays your 10 most listed to artists\n"
         );
 
     }
