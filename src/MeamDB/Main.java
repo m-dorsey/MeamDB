@@ -4,10 +4,10 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.Map;
-import java.util.ArrayList;
 
 public class Main {
 
@@ -835,6 +835,75 @@ public class Main {
         return rs;
     }
 
+    /*
+    public static void viewTopTen( Connection conn,  int uid ){
+
+        //NOTE: the requirements is a little vague, but what we can
+        // do and will do is get the top 10 by plays.
+        // it kinda implies on the requirements that the option
+        // is for the users, but it's actually for us, and I
+        // choose top 10 by plays
+
+        try {
+
+            //
+            let's figure out this query
+            top 10
+            thus limit
+            artist by plays
+            thus play table natural join with artist table
+            restrict the uid in the play table equals the input
+            from the function
+            count the aid then
+            group by sid and uid
+            we don't want to group by the timestamp,
+            because that would otherwise count a bunch we don't want
+            I think
+            wait.
+
+
+
+            select p.sid, count(s.artist_id) as total
+            from p320_12.plays p, p320_12.song s
+            where p.uid = uid and p.sid = s.sid,
+
+            wait. we just need to count the amount of times each artist was played
+            but also by the user
+            I'll ignore the by the user part for now, then add it in
+
+            select s.artist_id, count(s.artist_id) as total, p.sid
+            from p320_12.plays p, p320_12.song s
+            where p.sid = s.sid and p.uid = uid
+            group by p.sid, s.artist_id
+
+            I think that's it. we'll see, I suppose
+             //
+
+            Statement stmt = conn.createStatement();
+            //FIXME might want to add total>0, so we don't print literally everything ever played. we'll see
+            ResultSet rs = stmt.executeQuery("select s.artist_id, count(s.artist_id) as total, p.sid " +
+                "from p320_12.play p, p320_12.song s " +
+                "where p.sid = s.sid and p.uid = " + uid + " " +
+                "group by p.sid, s.artist_id " +
+                "order by total desc " +
+                "limit 10");
+            //FIXME we'll want to print out the artist name and total plays
+            System.out.println("artist id | total artist plays");
+            while( rs.next() ){
+                System.out.println(rs.getInt("artist_id") + " | " + rs.getInt("total"));
+            }
+
+
+
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
+
+    }
+    */
+
+
+
     /**
      *  Print the usage message in the correct format if the user requests help
      */
@@ -1007,6 +1076,9 @@ public class Main {
                 }
                 else if (input.equals("unfollow friend")) {
                     new UnfollowUser(userId).run(conn, scan);
+                }
+                else if (input.equals("view my top 10 artists")){
+                    //viewTopTen(conn, userId);
                 }
                 else {
                     System.out.println("That is not a valid command.");
