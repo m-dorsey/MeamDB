@@ -835,7 +835,7 @@ public class Main {
         return rs;
     }
 
-    /*
+
     public static void viewTopTen( Connection conn,  int uid ){
 
         //NOTE: the requirements is a little vague, but what we can
@@ -846,51 +846,16 @@ public class Main {
 
         try {
 
-            //
-            let's figure out this query
-            top 10
-            thus limit
-            artist by plays
-            thus play table natural join with artist table
-            restrict the uid in the play table equals the input
-            from the function
-            count the aid then
-            group by sid and uid
-            we don't want to group by the timestamp,
-            because that would otherwise count a bunch we don't want
-            I think
-            wait.
-
-
-
-            select p.sid, count(s.artist_id) as total
-            from p320_12.plays p, p320_12.song s
-            where p.uid = uid and p.sid = s.sid,
-
-            wait. we just need to count the amount of times each artist was played
-            but also by the user
-            I'll ignore the by the user part for now, then add it in
-
-            select s.artist_id, count(s.artist_id) as total, p.sid
-            from p320_12.plays p, p320_12.song s
-            where p.sid = s.sid and p.uid = uid
-            group by p.sid, s.artist_id
-
-            I think that's it. we'll see, I suppose
-             //
-
             Statement stmt = conn.createStatement();
-            //FIXME might want to add total>0, so we don't print literally everything ever played. we'll see
-            ResultSet rs = stmt.executeQuery("select s.artist_id, count(s.artist_id) as total, p.sid " +
-                "from p320_12.play p, p320_12.song s " +
-                "where p.sid = s.sid and p.uid = " + uid + " " +
-                "group by p.sid, s.artist_id " +
+            ResultSet rs = stmt.executeQuery("select distinct s.artist_id, count(s.artist_id) as total, a.name " +
+                "from p320_12.play p, p320_12.song_artist s, p320_12.artist a " +
+                "where p.sid = s.sid and p.uid = " + uid + " and a.artist_id = s.artist_id " +
+                "group by s.artist_id, a.name " +
                 "order by total desc " +
                 "limit 10");
-            //FIXME we'll want to print out the artist name and total plays
-            System.out.println("artist id | total artist plays");
+            System.out.println("Artist Name | Total Artist Plays");
             while( rs.next() ){
-                System.out.println(rs.getInt("artist_id") + " | " + rs.getInt("total"));
+                System.out.println(rs.getString("name") + " | " + rs.getInt("total"));
             }
 
 
@@ -900,7 +865,7 @@ public class Main {
         }
 
     }
-    */
+
 
 
 
@@ -1102,7 +1067,7 @@ public class Main {
                     recommend(conn, scan, userId);
                 }
                 else if (input.equals("view my top 10 artists")){
-                    //viewTopTen(conn, userId);
+                    viewTopTen(conn, userId);
                 }
                 else {
                     System.out.println("That is not a valid command.");
