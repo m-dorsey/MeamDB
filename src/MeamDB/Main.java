@@ -858,6 +858,27 @@ public class Main {
 
     }
 
+    public static void recommend(Connection conn, Scanner scan, int uid){
+        System.out.println("View recommendations based on: top 50 | popular with friends | trending genres | for you");
+        String input = scan.nextLine();
+
+        if(input.equals("top 50")){
+
+        }
+        else if(input.equals("popular with friends")){
+
+        }
+        else if(input.equals("trending genres")){
+
+        }
+        else if(input.equals("for you")) {
+
+        }
+        else{
+            System.out.println("Unrecognized command");
+        }
+    }
+
     /**
      * The main method of the program is used to connect to the database. It then loops
      * and allows the user to login and use the program by calling other functions. Once
@@ -1007,6 +1028,9 @@ public class Main {
                 }
                 else if (input.equals("unfollow friend")) {
                     new UnfollowUser(userId).run(conn, scan);
+                }
+                else if(input.equals("get recommendations")){
+                    recommend(conn, scan, userId);
                 }
                 else {
                     System.out.println("That is not a valid command.");
