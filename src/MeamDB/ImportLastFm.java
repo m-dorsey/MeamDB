@@ -256,7 +256,8 @@ public class ImportLastFm extends Command {
         Request req = new Request("user.getRecentTracks", apiKey);
         req.params.put("token", this.token);
         req.params.put("limit", "200");
-        req.params.put("from", String.format("%d", this.lastScan));
+        // use an older time to catch songs that were playing during the scan
+        req.params.put("from", String.format("%d", this.lastScan - 1312));
         req.params.put("user", this.lastUsername);
         req.params.put("page", String.format("%d", this.currentPage));
 
