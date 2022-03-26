@@ -330,7 +330,7 @@ public class ImportLastFm extends Command {
         }
 
         if(this.scrobbles.isEmpty())
-            if(this.currentPage++ == this.totalPages)
+            if(this.currentPage++ >= this.totalPages)
                 this.state = State.StoreLastScan;
             else
                 this.state = State.GetTracks;
