@@ -757,6 +757,7 @@ public class Main {
                 "'play collection'         \t\t Play a collection\n" +
                 "'follow friend'           \t\t Follow a friend\n" + //FIXME it isn't specified, but we probably also want to be able to list the follows.
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
+                "'import from lastfm'      \t\t Import your real life listening from last.fm\n" +
                 "'exit'                    \t\t Exit the program\n"
         );
 
@@ -927,6 +928,9 @@ public class Main {
                 }
                 else if (input.equals("unfollow friend")) {
                     new UnfollowUser(userId).run(conn, scan);
+                }
+                else if (input.equals("import from lastfm")) {
+                    new ImportLastFm(userId).run(conn, scan);
                 }
                 else {
                     System.out.println("That is not a valid command.");
