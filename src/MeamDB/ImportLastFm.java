@@ -714,15 +714,16 @@ public class ImportLastFm extends Command {
 
         Element doRequest(HttpClient c) throws IOException, InterruptedException {
             HttpRequest httpReq = this.buildRequest();
-            //HttpResponse resp = c.send(httpReq, HttpResponse.BodyHandlers.ofInputStream());
-            HttpResponse resp = c.send(httpReq, HttpResponse.BodyHandlers.ofString());
+            HttpResponse resp = c.send(httpReq, HttpResponse.BodyHandlers.ofInputStream());
+            //HttpResponse resp = c.send(httpReq, HttpResponse.BodyHandlers.ofString());
+            //System.out.println(resp.body());
             try {
                 return (Element) (
                     DocumentBuilderFactory
                     .newInstance()
                     .newDocumentBuilder()
-                    //.parse((String) resp.body())
-                    .parse(new ByteArrayInputStream(((String) resp.body()).getBytes()))
+                    .parse((InputStream) resp.body())
+                    //.parse(new ByteArrayInputStream(((String) resp.body()).getBytes()))
                     .getDocumentElement()
                 );
             } catch(Exception e) {
