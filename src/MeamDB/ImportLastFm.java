@@ -476,6 +476,11 @@ public class ImportLastFm extends Command {
     }
 
     private void importFoundAlbums(Connection c) throws SQLException {
+        if(this.foundAlbumInfo.isEmpty()) {
+            this.state = State.FinishLoadingResults;
+            return;
+        }
+
         c.prepareStatement(
             "CREATE TEMPORARY TABLE IF NOT EXISTS "     +
             "found_album_info (" +
