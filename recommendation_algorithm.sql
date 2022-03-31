@@ -70,7 +70,7 @@ CREATE OR REPLACE FUNCTION p320_12.recommendations (rec_for_uid INTEGER)
 			WHERE uid = rec_for_uid
 			AND timestamp > current_timestamp - interval '1 month'
 			GROUP BY sid
-			ORDER BY COUNT(timestamp)
+			ORDER BY COUNT(timestamp) DESC
 			LIMIT 20
 		)
 		SELECT similar_song.sid, SUM(score) AS score
