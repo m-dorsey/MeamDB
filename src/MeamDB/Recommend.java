@@ -250,9 +250,9 @@ public class Recommend extends Command {
             "FROM p320_12.song " +
             "JOIN p320_12.album_song USING (sid) " +
             "JOIN p320_12.album USING (album_id) " +
-            "JOIN p320_12.song_artist USING (sid) " +
-            "JOIN p320_12.artist USING (artist_id) " +
-            "JOIN p320_12.album_mbid USING (album_id) " +
+            "LEFT JOIN p320_12.song_artist USING (sid) " +
+            "LEFT JOIN p320_12.artist USING (artist_id) " +
+            "LEFT JOIN p320_12.album_mbid USING (album_id) " +
             "WHERE sid = ?;"
         );
         stmt.setInt(1, this.selectedSong);
