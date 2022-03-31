@@ -891,31 +891,11 @@ public class Main {
                 "'play collection'         \t\t Play a collection\n" +
                 "'follow friend'           \t\t Follow a friend\n" +
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
+                "'top charts'              \t\t Check out the top charts\n" +
                 "'exit'                    \t\t Exit the program\n" +
                 "'view my top 10 artists   \t\t Displays your 10 most listed to artists\n"
         );
 
-    }
-
-    public static void recommend(Connection conn, Scanner scan, int uid){
-        System.out.println("View recommendations based on: top 50 | popular with friends | trending genres | for you");
-        String input = scan.nextLine();
-
-        if(input.equals("top 50")){
-
-        }
-        else if(input.equals("popular with friends")){
-
-        }
-        else if(input.equals("trending genres")){
-
-        }
-        else if(input.equals("for you")) {
-
-        }
-        else{
-            System.out.println("Unrecognized command");
-        }
     }
 
     /**
@@ -1068,8 +1048,8 @@ public class Main {
                 else if (input.equals("unfollow friend")) {
                     new UnfollowUser(userId).run(conn, scan);
                 }
-                else if(input.equals("get recommendations")){
-                    recommend(conn, scan, userId);
+                else if(input.equals("top charts")){
+                    new Recommend(userId).run(conn, scan);
                 }
                 else if (input.equals("view my top 10 artists")){
                     viewTopTen(conn, userId);
