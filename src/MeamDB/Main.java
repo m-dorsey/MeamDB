@@ -869,6 +869,13 @@ public class Main {
 
     }
 
+    /**
+     * this function will get a user idea and a connection,
+     * then find and print out the amount of people that follow them
+     * and the amount people they follow.
+     * @param conn the connection to the DB
+     * @param uid the user to query
+     */
     public static void viewFollowStats( Connection conn, int uid){
         //this is to view the amount of followers and followed bys
         int followers = 0;
@@ -914,8 +921,9 @@ public class Main {
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
                 "'top charts'              \t\t Check out the top charts\n" +
                 "'view follow stats'       \t\t View Your Follow Stats\n" +
-                "'exit'                    \t\t Exit the program\n" +
-                "'view my top 10 artists'  \t\t Displays your 10 most listed to artists\n"
+                "'view my top 10 artists'  \t\t Displays your 10 most listed to artists\n" +
+                "'exit'                    \t\t Exit the program\n"
+
         );
 
     }
