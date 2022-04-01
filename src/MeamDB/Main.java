@@ -893,7 +893,7 @@ public class Main {
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
                 "'top charts'              \t\t Check out the top charts\n" +
                 "'exit'                    \t\t Exit the program\n" +
-                "'view my top 10 artists   \t\t Displays your 10 most listed to artists\n"
+                "'view my top 10 artists'   \t\t Displays your 10 most listed to artists\n"
         );
 
     }
