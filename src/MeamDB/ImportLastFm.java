@@ -370,13 +370,6 @@ public class ImportLastFm extends Command {
         }
         loadScrobbles.execute();
 
-        c.prepareStatement(
-            "INSERT INTO p320_12.artist (name)    " +
-            "  SELECT artist                    " +
-            "  FROM new_scrobbles                 " +
-            "  ON CONFLICT DO NOTHING             "
-        ).execute();
-
         ResultSet missingAlbumsQ =
             c.prepareStatement(
                 "SELECT DISTINCT album                 " +
@@ -513,6 +506,12 @@ public class ImportLastFm extends Command {
         insertAlbums.execute();
 
         c.prepareStatement(
+            "INSERT INTO p320_12.artist (name)  " +
+            "  SELECT artist                    " +
+            "  FROM found_album_info            " +
+            "  ON CONFLICT DO NOTHING           "
+        ).execute();
+        c.prepareStatement(
             "CREATE TEMPORARY TABLE "          +
             "new_album_ids "                                 +
             "ON COMMIT DROP "                         +
@@ -589,7 +588,7 @@ public class ImportLastFm extends Command {
                     "JOIN p320_12.album_mbid ON mbid = album "  +
                     "JOIN p320_12.album_song USING (album_id) " +
                     "JOIN p320_12.song USING (sid) "            +
-                    "WHERE title = track "                      +
+                    "WHERE LOWER(title) = LOWER(track) "        +
                 "ON CONFLICT DO NOTHING "                       +
                 "RETURNING timestamp"                           +
             ") "                                                +
