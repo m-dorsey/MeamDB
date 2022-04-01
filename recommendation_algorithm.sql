@@ -56,7 +56,13 @@ CREATE OR REPLACE FUNCTION p320_12.similar (similar_to_sid INTEGER)
 				MAX(score) AS max_score
 			FROM unnormalized
 		)
-		SELECT sid, (score - min_score) / (max_score - min_score) * 2 + 1 AS score
+		SELECT
+			sid,
+			CASE
+				WHEN min_score = max_score THEN 2
+				ELSE (score - min_score) / (max_score - min_score) * 2 + 1
+				END
+				AS score
 		FROM unnormalized, score_extremes
 	$$;
 
