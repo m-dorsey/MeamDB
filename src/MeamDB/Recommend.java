@@ -198,7 +198,6 @@ public class Recommend extends Command {
             "ORDER BY COUNT(*) DESC " +
             "LIMIT 5;"
         );
-        System.out.println(stmt);
         ResultSet rs = stmt.executeQuery();
         this.genres.clear();
         while(rs.next())
