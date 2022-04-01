@@ -869,6 +869,31 @@ public class Main {
 
     }
 
+    public static void viewFollowStats( Connection conn, int uid){
+        //this is to view the amount of followers and followed bys
+        int followers = 0;
+        int followed = 0;
+        try{
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select count(f) as fol from p320_12.follower f where f.follower = '"+uid+"'" );
+            if( rs.next() ){
+                followers = rs.getInt("fol");
+            }
+        }catch (Exception e){
+
+        }
+        try{
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select count(f) as fol from p320_12.follower f where f.followed = '"+uid+"'" );
+            if( rs.next() ){
+                followed = rs.getInt("fol");
+            }
+        }catch (Exception e){
+
+        }
+        System.out.println("You have " + followed + " followers.\nYou follow " + followers + " users.");
+    }
+
     /**
      *  Print the usage message in the correct format if the user requests help
      */
@@ -888,8 +913,9 @@ public class Main {
                 "'follow friend'           \t\t Follow a friend\n" +
                 "'unfollow friend'         \t\t Unfollow a friend\n" +
                 "'top charts'              \t\t Check out the top charts\n" +
+                "'view follow stats'       \t\t View Your Follow Stats\n" +
                 "'exit'                    \t\t Exit the program\n" +
-                "'view my top 10 artists'   \t\t Displays your 10 most listed to artists\n"
+                "'view my top 10 artists'  \t\t Displays your 10 most listed to artists\n"
         );
 
     }
@@ -1049,6 +1075,8 @@ public class Main {
                 }
                 else if (input.equals("view my top 10 artists")){
                     viewTopTen(conn, userId);
+                }else if (input.equals("view follow stats")){
+                    viewFollowStats(conn, userId);
                 }
                 else {
                     System.out.println("That is not a valid command.");
