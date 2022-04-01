@@ -1,11 +1,10 @@
 package MeamDB;
 
-import java.util.ArrayList;
-import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * A command to run the user interface for unfollowing a user
@@ -46,7 +45,8 @@ public class UnfollowUser extends Command {
                 else
                     return Command.Action.Prompt(
                         getMenu()
-                            .append("\nPlease select a user to unfollow by typing the number next to their name, or type \"quit\" to quit")
+                            .append("\nYou are following " + this.followedUsers.size() + " users.\n" +
+                                "Please select a user to unfollow by typing the number next to their name, or type \"quit\" to quit")
                             .toString()
                     );
             case BadInput:

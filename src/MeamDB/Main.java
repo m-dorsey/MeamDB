@@ -835,7 +835,6 @@ public class Main {
         return rs;
     }
 
-
     /**
      * This function print out the user's top 10
      * most played artists
@@ -869,9 +868,6 @@ public class Main {
         }
 
     }
-
-
-
 
     /**
      *  Print the usage message in the correct format if the user requests help
