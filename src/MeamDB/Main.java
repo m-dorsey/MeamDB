@@ -922,6 +922,7 @@ public class Main {
                 "'top charts'              \t\t Check out the top charts\n" +
                 "'view follow stats'       \t\t View Your Follow Stats\n" +
                 "'view my top 10 artists'  \t\t Displays your 10 most listed to artists\n" +
+                "'import from lastfm'      \t\t Import your real life listening from last.fm\n" +
                 "'exit'                    \t\t Exit the program\n"
 
         );
@@ -1083,8 +1084,12 @@ public class Main {
                 }
                 else if (input.equals("view my top 10 artists")){
                     viewTopTen(conn, userId);
-                }else if (input.equals("view follow stats")){
+                }
+                else if (input.equals("view follow stats")){
                     viewFollowStats(conn, userId);
+                }
+                else if (input.equals("import from lastfm")) {
+                    new ImportLastFm(userId).run(conn, scan);
                 }
                 else {
                     System.out.println("That is not a valid command.");

@@ -1,8 +1,11 @@
 package MeamDB;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.net.http.HttpClient;
 
 /**
  * An abstract class to make writing new commans a little easier
@@ -34,6 +37,15 @@ import java.sql.SQLException;
 public abstract class Command {
 
     /**
+     * An HTTP client for network requests
+     *
+     * Initialized lazily.  Also, i'm too lazy to figure out if there's a simple
+     * one-object wrapper type, so we're just using an array list with zero or one
+     * elements in it.
+     */
+    private ArrayList<HttpClient> client = new ArrayList();
+
+    /**
      * Start the command engine
      *
      * @param c The database connection to run SQL queries on
@@ -41,7 +53,7 @@ public abstract class Command {
      * @throws SQLException if there is an exception throw in an inner command
      */
     public void run(Connection c, Scanner s) throws SQLException {
-        while(this.action().run(this, c, s)) continue;
+        while(this.action().run(this, c, s, this.client)) continue;
     }
 
     /**
@@ -61,7 +73,7 @@ public abstract class Command {
          * @param c the database connection to use
          * @param s a scanner on stdin
          */
-        abstract boolean run(Command cmd, Connection c, Scanner s) throws SQLException;
+        abstract boolean run(Command cmd, Connection c, Scanner s, ArrayList<HttpClient> client) throws SQLException;
 
         /**
          * Create an Action to prompt the user for some input
@@ -103,11 +115,28 @@ public abstract class Command {
          */
         public static Action Query(QueryMethod query) { return new Action.Query(query); };
 
+        /**
+         * Connect to the World Wide Web
+         *
+         * Provides access to an HTTP client that persists for the lifetime of the
+         * command to a method of your choice.  Much like Query actions, this doesn't have
+         * any callback to the subclass, so it's assumed that the lambda passed to this
+         * method captures a reference to the command subclass which can be used to
+         * trigger the state transition.
+         *
+         * The lambda will receive on parameter (an HttpClient object) and should return
+         * nothing, but should update the state of the command along the way.
+         *
+         * @param net the method to run.  You should provide this one with a lambda.
+         * @return an Action which runs the given lambda
+         */
+        public static Action Network(NetworkMethod net) { return new Action.Network(net); };
+
         private static class Prompt extends Action {
             private String message;
             private Prompt(String message) { this.message = message; }
 
-            protected boolean run(Command cmd, Connection c, Scanner s) throws SQLException {
+            protected boolean run(Command cmd, Connection c, Scanner s, ArrayList<HttpClient> h) throws SQLException {
                 System.out.print(this.message + "\n~> ");
                 cmd.processInput(s.nextLine());
                 return true;
@@ -118,7 +147,7 @@ public abstract class Command {
             private String message;
             private Exit(String message) { this.message = message; }
 
-            protected boolean run(Command cmd, Connection c, Scanner s) throws SQLException {
+            protected boolean run(Command cmd, Connection c, Scanner s, ArrayList<HttpClient> h) throws SQLException {
                 if(this.message != null)
                     System.out.println(this.message);
                 return false;
@@ -129,9 +158,32 @@ public abstract class Command {
             QueryMethod query;
             private Query(QueryMethod query) { this.query = query; }
 
-            protected boolean run(Command cmd, Connection c, Scanner s) throws SQLException {
+            protected boolean run(Command cmd, Connection c, Scanner s, ArrayList<HttpClient> h) throws SQLException {
                 this.query.query(c);
                 return true;
+            }
+        }
+
+        private static class Network extends Action {
+            NetworkMethod net;
+            private Network(NetworkMethod net) { this.net = net; }
+
+            protected boolean run(Command cmd, Connection c, Scanner s, ArrayList<HttpClient> h) throws SQLException {
+                if(h.isEmpty())
+                    h.add(
+                        HttpClient.newBuilder()
+                            .build()
+                    );
+                try {
+                    this.net.run(h.get(0));
+                    return true;
+                } catch(IOException e) {
+                    e.printStackTrace();
+                    return false;
+                } catch(InterruptedException e) {
+                    System.out.println("Interrupted!  Returning to main menu.");
+                    return false;
+                }
             }
         }
 
@@ -167,5 +219,16 @@ public abstract class Command {
     @FunctionalInterface
     protected interface QueryMethod {
         public void query(Connection c) throws SQLException;
+    }
+
+    /**
+     * A lambda which is used for running queries
+     *
+     * @see Command.Action.Query
+     * @throws IOException if an oopsie happens
+     */
+    @FunctionalInterface
+    protected interface NetworkMethod {
+        public void run(HttpClient c) throws IOException, InterruptedException;
     }
 }
