@@ -786,7 +786,7 @@ Student 4 tts1848: Emi Simpson\\
     
     Retrieving the count of how many people follow and are followed by a user:
     
-    \being{lstlisting}
+    \begin{lstlisting}
     //getting the amount of people the user follows
     Statement stmt = conn.createStatement();
     ResultSet rs = stmt.executeQuery("select count(f) as fol from p320_12.follower f where f.follower = '"+uid+"'" );
@@ -804,7 +804,7 @@ Student 4 tts1848: Emi Simpson\\
     
     A minor edit to the view collections function to get the amount of collections a user has:
     
-    \being{lstlisting}
+    \begin{lstlisting}
     Statement stmt3 = conn.createStatement();
     ResultSet total = stmt3.executeQuery("select count(cid) as total from p320_12.collection where p320_12.collection.uid = " + uid );
 
@@ -815,7 +815,7 @@ Student 4 tts1848: Emi Simpson\\
     
     Recommeding the 5 most popular genres of the month for the user:
     
-    \being{lstlisting}
+    \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
         "SELECT genre " +
         "FROM p320_12.play " +
@@ -832,7 +832,7 @@ Student 4 tts1848: Emi Simpson\\
     
     Recommending by 50 most popular songs of the month, 50 most popular songs among a friend, 50 most popular among a genre, and 50 most popular to the user:
     (Note: Question marks are replaced by user input parameters before the SQL is called)
-    \being{lstlisting}
+    \begin{lstlisting}
     switch(this) {
         case Month:
             // No args
@@ -883,7 +883,7 @@ Student 4 tts1848: Emi Simpson\\
     
     Display a recommended songs info:
     
-    \being{lstlisting}
+    \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
         "SELECT title, length, genre, track_number, album.name, artist.name, mbid " +
         "FROM p320_12.song " +
@@ -901,7 +901,7 @@ Student 4 tts1848: Emi Simpson\\
     
     Play a recommended song:
     
-    \being{lstlisting}
+    \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
         "INSERT INTO p320_12.play VALUES (?, ?, CURRENT_TIMESTAMP);"
     );
