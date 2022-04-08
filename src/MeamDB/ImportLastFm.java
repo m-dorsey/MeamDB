@@ -405,11 +405,15 @@ public class ImportLastFm extends Command {
             String albumName = nameNode.getFirstChild().getNodeValue();
 
             Element tags = (Element) response.getElementsByTagName("tags").item(0);
-            Element tag = (Element) tags.getElementsByTagName("tag").item(0);
             String genre;
-            if(tag != null) {
-                Element tagName = (Element) tag.getElementsByTagName("name").item(0);
-                genre = tagName.getFirstChild().getNodeValue();
+            if(tags != null) {
+                Element tag = (Element) tags.getElementsByTagName("tag").item(0);
+                if(tag != null) {
+                    Element tagName = (Element) tag.getElementsByTagName("name").item(0);
+                    genre = tagName.getFirstChild().getNodeValue();
+                } else {
+                    genre = "untagged";
+                }
             } else {
                 genre = "untagged";
             }
