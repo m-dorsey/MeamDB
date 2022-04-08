@@ -396,9 +396,8 @@ public class ImportLastFm extends Command {
             Element response = req.doRequest(c);
             Element artistNode = (Element) response.getElementsByTagName("artist").item(0);
             if(artistNode == null) {
-                this.error = "Artist not included with album information";
-                this.state = State.UnknownError;
-                return;
+                System.out.format("[WARN] Artist not included with album information for %s%n", mbid);
+                continue;
             }
             String artist = artistNode.getFirstChild().getNodeValue();
 
