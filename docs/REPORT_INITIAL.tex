@@ -5,6 +5,7 @@
 \usepackage{listings}
 \usepackage[table]{xcolor}
 \usepackage{hyperref}
+\usepackage{appendix}
 
 \definecolor{javared}{rgb}{0.6, 0, 0}
 \definecolor{javagreen}{rgb}{0.25, 0.5, 0.35}
@@ -41,7 +42,9 @@ Student 4 tts1848: Emi Simpson\\
     For this project, we would like to work with the Music Domain
     and our backup option will be the Recipes Domain. We plan to
     implement our project using Java.
-    \\~\\
+
+    \vspace{0.5cm}
+
     \noindent Our database application will be run through the command line
     and will feature frequent user interaction in order to perform the desired
     commands from the user. We will design the application to be highly usable,
@@ -50,7 +53,7 @@ Student 4 tts1848: Emi Simpson\\
     \section{Design}
     \subsection{Conceptual Model}
 
-    \\~\\
+    \vspace{0.5cm}
 
 %    \begin{figure}
 %        \includegraphics[width=\linewidth]{ER-Diagram/MeamDB ER Diagram.png}
@@ -62,8 +65,9 @@ Student 4 tts1848: Emi Simpson\\
     \caption{MeamDB ER Diagram showing entities and relationships}
     \label{ER Diagram}
 
-    \\~\\
-    For our ER diagram, we first decided to have five entity types:
+    \vspace{0.5cm}
+
+    \noindent For our ER diagram, we first decided to have five entity types:
     Artist, Song, Collection, Album, and User. We gave entity type User the attributes
     username, password, composite attribute name (first\_name, last\_name), email,
     last\_login, and creation\_date. The email and username will have the restriction that it must be unique
@@ -73,22 +77,30 @@ Student 4 tts1848: Emi Simpson\\
     to track every user login and store when a new user account is first created. The derived attributes
     (number\_following, number\_followers, number\_collections) will be generated as the user
     follows other users, gains followers, and creates playlists of their own.
-    \\~\\
-    We gave the Artist the attributes name and the key artist\_id that
+
+    \vspace{0.5cm}
+
+    \noindent We gave the Artist the attributes name and the key artist\_id that
     will be generated when an artist is created. This would allow artists to change their
     name (like Prince) should they choose to or have any legal issues with their label. The
     name will have the restriction that it must be unique to the artist.
-    \\~\\
-    The Album entity type has the attributes name, release\_date, and derived attribute
+
+    \vspace{0.5cm}
+
+    \noindent The Album entity type has the attributes name, release\_date, and derived attribute
     genre that will be based on the artist who made it. The key
     attribute will be an album\_id generated when an album is created. This allows albums
     with the same name to exist if they are made by different artists.
-    \\~\\
-    In our design, Song has title, length, genre, and release\_date. We will
+
+    \vspace{0.5cm}
+
+    \noindent In our design, Song has title, length, genre, and release\_date. We will
     generate a sid to be the key attribute to allow us to distinguish between songs with
     the same name, length, artist and release\_date.
-    \\~\\
-    Each Collection has a name and key attribute cid. We will calculate
+
+    \vspace{0.5cm}
+
+    \noindent Each Collection has a name and key attribute cid. We will calculate
     the no\_songs and total\_length based on the songs that are placed in the collection.
 
     \subsection{Reduction to Tables}
@@ -106,8 +118,10 @@ Student 4 tts1848: Emi Simpson\\
         \item Follower( \emph{follower}, \emph{followed} )
         \item Play( \emph{uid}, \emph{sid}, last\_time\_listened )
     \end{itemize}
-    \\~\\
-    We created separate tables (Album, Artist, Song, Collection, User) for each of our
+
+    \vspace{0.5cm}
+
+    \noindent We created separate tables (Album, Artist, Song, Collection, User) for each of our
     entities and used foreign keys to represent the relationships between the different entities.
     \begin{itemize}
         \item Album Entity Type: The relationship between the Album entity type and other entity types such as Song and Artist is represented by creating new tables like Album\_Song and Album\_Artist that have the album\_id key attribute as a foreign key. This allows the Song and Artist entities to be directly related to the Album.
@@ -136,8 +150,10 @@ Student 4 tts1848: Emi Simpson\\
 %
     \subsection{Data Requirements/Constraints}
     In the Follower relationship table, both of the foreign keys, follower and followed, reference the User's uid. These 2 uid fields cannot be the same because the User is not allowed to follow themselves.
-    \\~\\
-    All of the following attributes in our tables are required to be not null:
+
+    \vspace{0.5cm}
+
+    \noindent All of the following attributes in our tables are required to be not null:
 
     \begin{itemize}
         \item Album Attributes
@@ -278,7 +294,7 @@ Student 4 tts1848: Emi Simpson\\
 
 
 
-    \begin{table}
+    %\begin{table}
         \scriptsize
         \begin{center}
             \begin{tabular}{ |c|c|c|c|c|c|c|c| }
@@ -293,7 +309,7 @@ Student 4 tts1848: Emi Simpson\\
                 \hline
             \end{tabular}
         \end{center}
-    \end{table}
+    %\end{table}
 
 
 
@@ -453,6 +469,14 @@ Student 4 tts1848: Emi Simpson\\
     Our data was then accumulated together and cleaned to ensure every song has a single artist, no song
     is without a genre, the release date has the proper yyyy-mm-dd format and all special characters
     in the song titles or artist names (eg. \'{a}, \"{i}, \~{n}, etc.) were properly represented.
+
+    \vspace{0.5cm}
+
+    \noindent Additional data was later populated into our database via the
+    \underline{\href{https://www.last.fm/about/trackmymusic}{Last.fm Track My Music}} feature. This data was
+    then parsed through to only upload songs from our personal Spotify listening that matches an artist that
+    is already present in our database.
+
 
     \subsubsection{Sample Create Statements}
 
@@ -926,56 +950,6 @@ Student 4 tts1848: Emi Simpson\\
     \section{Lessons Learned}
     Use this section to describe the issues you faced during the project and how you overcame them. Also, describe what you learned during this effort; this section, like the others, plays a critical component in determining your final grade.\\
 
-%    {\bf The next subsection is meant to provide you with some help in
-%    dealing with figures, tables and references, as these are sometimes
-%    hard for folks new to \LaTeX. Your figures and tables
-%    may be distributed all over your paper (not just here), as appropriate for your paper.
-
-%    Please delete the following subsection before you make any submissions!}
-%
-%    \subsection{Tables, Figures, and Citations/References}
-%
-%    Tables, figures, and references in technical
-%    documents need to be presented correctly. As many students
-%    are not familiar with using these objects, here is a quick
-%    guide extracted from the ACM style guide.
-%
-%    \begin{table}
-%        \centering
-%        \caption{Feelings about Issues}
-%        \label{SAMPLE TABLE}
-%        \begin{tabular}{|l|r|l|} \hline
-%        Flavor&Percentage&Comments\\ \hline
-%        Issue 1 &  10\% & Loved it a lot\\ \hline
-%        Issue 2 &  20\% & Disliked it immensely\\ \hline
-%        Issue 3 &  30\% & Didn't care one bit\\ \hline
-%        Issue 4 &  40\% & Duh?\\ \hline
-%        \end{tabular}
-%    \end{table}
-%
-%
-%    First, note that figures in the report must be original, that is,
-%    created by the student: please do not cut-and-paste figures from any
-%    other paper or report you have read or website. Second, if you do need to include figures,
-%    they should be handled as demonstrated here. State that
-%    Figure~\ref{SAMPLE FIGURE} is a simple illustration used in the ACM
-%    Style sample document. Never refer to the figure below (or above)
-%    because figures may be placed by \LaTeX{} at any appropriate location
-%    that can change when you recompile your source $.tex$
-%    file. Incidentally, in proper technical writing (for reasons beyond
-%    the scope of this discussion), table captions are above the table and
-%    figure captions are below the figure. So the truly junk information
-%    about flavors is shown in Table~\ref{SAMPLE TABLE}.
-%
-%
-%%    \begin{figure}[htb]
-%%        \begin{center}
-%%
-%%            \includegraphics[width=1.5in]{fly.jpg}
-%%            \caption{A sample black \& white graphic (JPG).}
-%%            \label{SAMPLE FIGURE}
-%%        \end{center}
-%%    \end{figure}
 
     \section{Resources}
     Include in this section the resources you have used in your project beyond the normal code development such as data sets or data analytic tools (i.e. Weka, R).
@@ -987,5 +961,7 @@ Student 4 tts1848: Emi Simpson\\
     being publically available on last.fm, we are able to upload the
     database with plays from long established users on last.fm who
     have plenty of data to upload and then analyze.
+
+
 
 \end{document}
