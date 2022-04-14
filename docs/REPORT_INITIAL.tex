@@ -466,7 +466,7 @@ Student 4 tts1848: Emi Simpson\\
 
     \subsection{Database Population}
     Our dataset was populated with over 13,000 songs directly from various Spotify playlists
-    via the export to csv feature on the \underline{\href{https://skiley.net/}{Skiley}} website.
+    via the export to CSV feature on the \underline{\href{https://skiley.net/}{Skiley}} website.
     Our data was then accumulated together and cleaned to ensure every song has a single artist, no song
     is without a genre, the release date has the proper yyyy-mm-dd format and all special characters
     in the song titles or artist names (eg. \'{a}, \"{i}, \~{n}, etc.) were properly represented.
@@ -792,15 +792,48 @@ Student 4 tts1848: Emi Simpson\\
 
 
     \section{Resources}
-    Include in this section the resources you have used in your project beyond the normal code development such as data sets or data analytic tools (i.e. Weka, R).
+    Include in this section the resources you have used in your project beyond the normal code development
+    such as data sets or data analytic tools (i.e. Weka, R).
 
-    \vspace{0.5cm} We used last.fm and linked it to our spotify accounts, so we could
-    get the data about our song plays onto last.fm. From there, we made
-    it so you can connect your last.fm to the database, to upload new music
-    and fill your plays from last.fm itself. Additionally, due to plays
-    being publically available on last.fm, we are able to upload the
-    database with plays from long established users on last.fm who
-    have plenty of data to upload and then analyze.
+    \subsection{Skiley}
+    Skiley is a web app that integrates with Spotify to allow users to view their listening history,
+    create playlists based on recommendations, and export public or private playlists on the user's profile.
+    We used Skiley as our first avenue to create an initial dataset that will be populated to our database.
+    Using the playlist export feature, we collated CSV files with a song's track name, artist name, album name,
+    track duration, track number, artist genre, and album release date.
+
+    \subsection{Last.fm}
+    We used last.fm to populate more data into our database during implementation
+    in order to have a larger data set for analyzation. We linked Last.fm to our
+    personal spotify accounts so we could get the data about our song's play info
+    (how many times have we played the song). From there, we implemented a feature
+    that will allow Last.fm connection to our database to upload new music and fill
+    a song's plays from Last.fm itself. Additionally, due to plays being publicly
+    available on Last.fm, we were able to populate the database with song plays from
+    long established users on Last.fm to allow for further analysis.
+
+    \subsection{Excel}
+    \subsubsection{Data Cleaning}
+    After our initial data gathering from Skiley, the data was cleaned in Excel to ensure
+    the following:
+    \begin{enumerate}
+        \item All songs have 1 genre
+        \item Track duration is converted from minutes and seconds to total seconds
+        \item Release date converted to the yyyy-mm-dd format
+        \item All special letter characters are represented correctly
+            \begin{itemize}
+                \item eg. \'{a}, \"{o}, \~{n}, etc.
+            \end{itemize}
+    \end{enumerate}
+    From collation, the data was split into 3 initial Excel sheets that contained the entities Song,
+    Artist, and Album as detailed in our MeamDB ER Diagram. Using Excel's Power Query Editor, unique
+    ids were created for every Song, Artist, and Album and queries were combined to match the relationships
+    for AlbumSong, AlbumArtist, and SongArtist via their unique ids.
+
+    \subsubsection{Data Visualization}
+    After populating our database through our Java implementation, we downloaded our data as CSVs to
+    analysize and make predictions. Excel was used to create graphs and charts to visualize our
+    collections of data and draw conclusions from the results.
 
     \section{Appendix}
     %\appendix
