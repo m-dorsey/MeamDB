@@ -5,7 +5,6 @@
 \usepackage{listings}
 \usepackage[table]{xcolor}
 \usepackage{hyperref}
-\usepackage{appendix}
 
 \definecolor{javared}{rgb}{0.6, 0, 0}
 \definecolor{javagreen}{rgb}{0.25, 0.5, 0.35}
@@ -310,6 +309,8 @@ Student 4 tts1848: Emi Simpson\\
             \end{tabular}
         \end{center}
     %\end{table}
+
+    \normalsize
 
 
 
@@ -771,27 +772,60 @@ Student 4 tts1848: Emi Simpson\\
 
 
     \section{Data Analysis}
-    Finally, add an appendix of all the SQL statements
-    created in your application during Phase 4 and a description of the indexes created to
-    boost the performance of your application.
+
     
-    Selecting the top 10 artists for a user:
+    
+    
+    \subsection{Hypothesis}
+    Use this section to state the objectives of your data analysis; what are the observations you are expecting to find. Note that your final
+    observations may end up differing from your proposal, that is also a valid result.
+    \subsection{Data Preprocessing}
+    Use this section to describe the preprocessing steps you have performed to prepare the data for the analytics. Preprocessing steps may include: data cleaning (e.g., filling missing values, fixing outliers), formatting the data (e.g., resolving issues like inconsistent abbreviations, multiples date format in the data), combining or splitting fields, add new information (data enrichness).
+
+    Explain how the data was extracted from the database for the analysis; if you used complex queries or views, or both.
+    \subsection{Data Analytics \& Visualization}
+    Use this section to explain the process/techniques used to analyze the data, use data visualization to present the results, and explain them.
+    \subsection{Conclusions}
+    Use this section to explain the conclusions drawn from your data analysis.\\
+    \section{Lessons Learned}
+    Use this section to describe the issues you faced during the project and how you overcame them. Also, describe what you learned during this effort; this section, like the others, plays a critical component in determining your final grade.\\
+
+
+    \section{Resources}
+    Include in this section the resources you have used in your project beyond the normal code development such as data sets or data analytic tools (i.e. Weka, R).
+
+    \vspace{0.5cm} We used last.fm and linked it to our spotify accounts, so we could
+    get the data about our song plays onto last.fm. From there, we made
+    it so you can connect your last.fm to the database, to upload new music
+    and fill your plays from last.fm itself. Additionally, due to plays
+    being publically available on last.fm, we are able to upload the
+    database with plays from long established users on last.fm who
+    have plenty of data to upload and then analyze.
+
+    \section{Appendix}
+    %\appendix
+
+    \subsection{SQL Statements}
+    This section includes all the SQL statements that were written during Phase 4 of
+    implementation.
+
+    \subsubsection{Selecting the top 10 artists for a user}
     \lstset{
-        frame=tb,
-        language=Java,
-        aboveskip=3mm,
-        belowskip=3mm,
-        showstringspaces=false,
-        columns=flexible,
-        basicstyle=\ttfamily,
-        numbers=none,
-        numberstyle=\tiny\color{gray},
-        keywordstyle=\color{javapurple}\bfseries,
-        commentstyle=\color{javagreen},
-        stringstyle=\color{javared},
-        breaklines=true,
-        breakatwhitespace=true,
-        tabsize=4
+    frame=tb,
+    language=Java,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{javapurple}\bfseries,
+    commentstyle=\color{javagreen},
+    stringstyle=\color{javared},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
     }
     \begin{lstlisting}
     //select user's top 10 artists
@@ -807,9 +841,9 @@ Student 4 tts1848: Emi Simpson\\
         System.out.println(rs.getString("name") + " | " + rs.getInt("total"));
     }
     \end{lstlisting}
-    
-    Retrieving the count of how many people follow and are followed by a user:
-    
+
+    \subsubsection{Retrieving the count of how many people follow and are followed by a user}
+
     \begin{lstlisting}
     //getting the amount of people the user follows
     Statement stmt = conn.createStatement();
@@ -817,7 +851,7 @@ Student 4 tts1848: Emi Simpson\\
     if( rs.next() ){
         followers = rs.getInt("fol");
     }
-    
+
     //getting the amount of people followed by the user
     Statement stmt = conn.createStatement();
     ResultSet rs = stmt.executeQuery("select count(f) as fol from p320_12.follower f where f.followed = '"+uid+"'" );
@@ -825,9 +859,9 @@ Student 4 tts1848: Emi Simpson\\
         followed = rs.getInt("fol");
     }
     \end{lstlisting}
-    
-    A minor edit to the view collections function to get the amount of collections a user has:
-    
+
+    \subsubsection{A minor edit to the view collections function to get the amount of collections a user has:}
+
     \begin{lstlisting}
     Statement stmt3 = conn.createStatement();
     ResultSet total = stmt3.executeQuery("select count(cid) as total from p320_12.collection where p320_12.collection.uid = " + uid );
@@ -836,9 +870,9 @@ Student 4 tts1848: Emi Simpson\\
         System.out.println("Total collections: " + total.getInt("total"));
     }
     \end{lstlisting}
-    
-    Recommeding the 5 most popular genres of the month for the user:
-    
+
+   \subsubsection{Recommending the 5 most popular genres of the month for the user}
+
     \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
         "SELECT genre " +
@@ -851,11 +885,14 @@ Student 4 tts1848: Emi Simpson\\
     );
     ResultSet rs = stmt.executeQuery();
     \end{lstlisting}
-    
-    
-    
-    Recommending by 50 most popular songs of the month, 50 most popular songs among a friend, 50 most popular among a genre, and 50 most popular to the user:
-    (Note: Question marks are replaced by user input parameters before the SQL is called)
+
+
+    \subsubsection{Recommending by 50 most popular songs of the month, 50 most popular songs among a friend, 50 most popular among a genre, and 50 most popular to the user}
+
+    \vspace{0.5cm}
+    In the below statements, the question marks are replaced by user inputs that are collected
+    before the SQl is called to query the database.
+
     \begin{lstlisting}
     switch(this) {
         case Month:
@@ -904,9 +941,9 @@ Student 4 tts1848: Emi Simpson\\
                 "LIMIT 50;";
     }
     \end{lstlisting}
-    
-    Display a recommended songs info:
-    
+
+    \subsubsection{Display a recommended songs info}
+
     \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
         "SELECT title, length, genre, track_number, album.name, artist.name, mbid " +
@@ -921,10 +958,10 @@ Student 4 tts1848: Emi Simpson\\
     stmt.setInt(1, this.selectedSong);
     ResultSet result = stmt.executeQuery();
     \end{lstlisting}
-    
-    
-    Play a recommended song:
-    
+
+
+    \subsubsection{Play a recommended song}
+
     \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
         "INSERT INTO p320_12.play VALUES (?, ?, CURRENT_TIMESTAMP);"
@@ -933,34 +970,7 @@ Student 4 tts1848: Emi Simpson\\
     stmt.setInt(2, this.selectedSong);
     stmt.execute();
     \end{lstlisting}
-    
-    
-    
-    \subsection{Hypothesis}
-    Use this section to state the objectives of your data analysis; what are the observations you are expecting to find. Note that your final
-    observations may end up differing from your proposal, that is also a valid result.
-    \subsection{Data Preprocessing}
-    Use this section to describe the preprocessing steps you have performed to prepare the data for the analytics. Preprocessing steps may include: data cleaning (e.g., filling missing values, fixing outliers), formatting the data (e.g., resolving issues like inconsistent abbreviations, multiples date format in the data), combining or splitting fields, add new information (data enrichness).
 
-    Explain how the data was extracted from the database for the analysis; if you used complex queries or views, or both.
-    \subsection{Data Analytics \& Visualization}
-    Use this section to explain the process/techniques used to analyze the data, use data visualization to present the results, and explain them.
-    \subsection{Conclusions}
-    Use this section to explain the conclusions drawn from your data analysis.\\
-    \section{Lessons Learned}
-    Use this section to describe the issues you faced during the project and how you overcame them. Also, describe what you learned during this effort; this section, like the others, plays a critical component in determining your final grade.\\
-
-
-    \section{Resources}
-    Include in this section the resources you have used in your project beyond the normal code development such as data sets or data analytic tools (i.e. Weka, R).
-
-    We used last.fm and linked it to our spotify accounts, so we could
-    get the data about our song plays onto last.fm. From there, we made
-    it so you can connect your last.fm to the database, to upload new music
-    and fill your plays from last.fm itself. Additionally, due to plays
-    being publically available on last.fm, we are able to upload the
-    database with plays from long established users on last.fm who
-    have plenty of data to upload and then analyze.
 
 
 
