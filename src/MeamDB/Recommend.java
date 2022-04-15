@@ -335,7 +335,7 @@ public class Recommend extends Command {
                         "JOIN p320_12.song " +
                             "USING (sid) " +
                         "WHERE follower = ? " +
-                            "AND age(timestamp) < INTERVAL '1 month' " +
+                            "AND timestamp > CURRENT_TIMESTAMP - INTERVAL '1 month' " +
                         "GROUP BY sid, title " +
                         "ORDER BY COUNT(*) DESC " +
                         "LIMIT 50;";
@@ -347,7 +347,7 @@ public class Recommend extends Command {
                         "JOIN p320_12.song " +
                             "USING (sid) " +
                         "WHERE genre = ? " +
-                            "AND age(timestamp) < interval '1 month' " +
+                            "AND timestamp > CURRENT_TIMESTAMP - INTERVAL '1 month' " +
                         "GROUP BY sid, title " +
                         "ORDER BY COUNT(*) DESC " +
                         "LIMIT 50;";
