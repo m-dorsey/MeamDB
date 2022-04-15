@@ -71,7 +71,7 @@ Student 4 tts1848: Emi Simpson\\
     username, password, composite attribute name (first\_name, last\_name), email,
     last\_login, and creation\_date. The email and username will have the restriction that it must be unique
     for each user. The key for User will be a uid that is generated when a new user is
-    created and would allow users to update their name, email, and password without
+    created and it would allow users to update their name, email, and password without
     changing the key. The last\_login and creation\_date attributed will be populated by the program
     to track every user login and store when a new user account is first created. The derived attributes
     (number\_following, number\_followers, number\_collections) will be generated as the user
@@ -293,23 +293,23 @@ Student 4 tts1848: Emi Simpson\\
 
 
 
-    %\begin{table}
-        \scriptsize
-        \begin{center}
-            \begin{tabular}{ |c|c|c|c|c|c|c|c| }
-                \hline
-                \rowcolor{tablegrey} \multicolumn{8}{|c|}{User} \\
-                \hline
-                \underline{uid} & username & password & fname & lname & email & last\_login & creation\_date \\
-                \hline
-                1 & UserFolk & 123456 & John & Doe & jdoe@gmail.com & 2022-02-18 & 2022-02-18\\
-                \hline
-                2 & BobbyS & password123 & Bob & Smith & bsmith@aol.com & 2022-02-16 & 2022-01-01 \\
-                \hline
-            \end{tabular}
-        \end{center}
-    %\end{table}
 
+    \scriptsize
+    % change text to script size for table sizing
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c|c|c| }
+            \hline
+            \rowcolor{tablegrey} \multicolumn{8}{|c|}{User} \\
+            \hline
+            \underline{uid} & username & password & fname & lname & email & last\_login & creation\_date \\
+            \hline
+            1 & UserFolk & 123456 & John & Doe & jdoe@gmail.com & 2022-02-18 & 2022-02-18\\
+            \hline
+            2 & BobbyS & password123 & Bob & Smith & bsmith@aol.com & 2022-02-16 & 2022-01-01 \\
+            \hline
+        \end{tabular}
+    \end{center}
+    % change text to normal for the rest of the document
     \normalsize
 
 
@@ -465,7 +465,7 @@ Student 4 tts1848: Emi Simpson\\
     \section{Implementation}
 
     \subsection{Database Population}
-    Our dataset was populated with over 13,000 songs directly from various Spotify playlists
+    Our dataset was initially populated with over 13,000 songs directly from various Spotify playlists
     via the export to CSV feature on the \underline{\href{https://skiley.net/}{Skiley}} website.
     Our data was then accumulated together and cleaned to ensure every song has a single artist, no song
     is without a genre, the release date has the proper yyyy-mm-dd format and all special characters
@@ -473,10 +473,10 @@ Student 4 tts1848: Emi Simpson\\
 
     \vspace{0.5cm}
 
-    \noindent Additional data was later populated into our database via the
-    \underline{\href{https://www.last.fm/about/trackmymusic}{Last.fm Track My Music}} feature. This data was
-    then parsed through to only upload songs from our personal Spotify listening that matches an artist that
-    is already present in our database.
+    \noindent Additional data was later populated into our database via the Last.fm feature called
+    \underline{\href{https://www.last.fm/about/trackmymusic}{Track My Music}}. This data was
+    then parsed through to only upload any songs, albums, or artists from our personal Spotify
+    listening or another Last.fm user's profile that is not currently present in our database.
 
 
     \subsubsection{Sample Create Statements}
@@ -498,6 +498,7 @@ Student 4 tts1848: Emi Simpson\\
     breakatwhitespace=true,
     tabsize=4
     }
+
     \begin{lstlisting}
     CREATE TABLE song (
         sid integer not null primary key,
@@ -522,9 +523,9 @@ Student 4 tts1848: Emi Simpson\\
         creation_date timestamp defualt CURRENT_TIMESTAMP
     );
     \end{lstlisting}
-    The data we acquired was uploaded into our database with a python script that parsed through our dataset.csv
-    file. It uses data classes, tuples, and lists to separate each table's representative data
-    and import it into our database.
+    The initial data we acquired was uploaded into our database with a python script that parsed through
+    our collated dataset.csv file. It uses data classes, tuples, and lists to separate each
+    table's representative data and import it into our database.
 
     \lstset{
     frame=tb,
@@ -569,6 +570,78 @@ Student 4 tts1848: Emi Simpson\\
                 fields_sql,
                 all_values,
             )
+    \end{lstlisting}
+
+    \lstset{
+    frame=tb,
+    language=Java,
+    aboveskip=3mm,
+    belowskip=3mm, The temportary
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{javapurple}\bfseries,
+    commentstyle=\color{javagreen},
+    stringstyle=\color{javared},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+    }
+
+    \noindent The additional data we uploaded via Last.fm into our database was inserted
+    by preparing and executing SQl statements in Java. Temporary tables
+    were created to obtain the required data from the Last.fm connection and safely
+    insert it into our preexisting tables.
+
+    \begin{lstlisting}
+    c.prepareStatement(
+        "CREATE TEMPORARY TABLE IF NOT EXISTS "     +
+        "found_album_info (" +
+            "artist    TEXT,"                       +
+            "mbid      CHAR(36),"                   +
+            "albumName TEXT,"                       +
+            "trackNum  INTEGER,"                    +
+            "length    INTEGER,"                    +
+            "trackName TEXT,"                       +
+            "genre     TEXT,"                       +
+            "release   DATE"                        +
+        ") ON COMMIT DELETE ROWS;"
+    ).execute();
+
+    \end{lstlisting}
+
+    \noindent Additional temporary tables are created (\lstinline{new_song_ids},
+    \lstinline{new_album_ids}) to sequence the next available
+    primary key for insertion to the artist, album and song entity
+    tables. Following the insertion into these three tables, more SQL
+    statements are used to insert the appropriate data into our relationship
+    tables to directly relate the entity types to one another.
+
+    \begin{lstlisting}
+
+    c.prepareStatement(
+        "INSERT INTO p320_12.artist (name)  " +
+        "  SELECT artist                    " +
+        "  FROM found_album_info            " +
+        "  ON CONFLICT DO NOTHING           "
+    ).execute();
+
+    c.prepareStatement(
+        "INSERT INTO p320_12.album "           +
+        "SELECT DISTINCT ON (mbid) "           +
+            "album_id, albumName, release "    +
+        "FROM new_album_ids "                  +
+        "JOIN found_album_info USING (mbid)"
+    ).execute();
+
+    c.prepareStatement(
+        "INSERT INTO p320_12.song "                          +
+            "SELECT sid, length, trackName, genre, release " +
+            "FROM new_song_ids "                             +
+            "JOIN found_album_info USING (mbid, trackNum)"
+    ).execute();
     \end{lstlisting}
 
     
