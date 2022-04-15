@@ -546,30 +546,30 @@ Student 4 tts1848: Emi Simpson\\
     tabsize=4
     }
     \begin{lstlisting}
-        artist_values = [(aid, artist.name) for artist, aid in artist_ids.items()]
-        album_values = [(aid, album.name, album.date) for album, aid in album_ids.items()]
-        track_values = [(tid, track.duration, track.title, track.genre, track.date) for track, tid in track_ids.items()]
-        song_artist_values = [(tid, artist_ids[track.artist]) for track, tid in track_ids.items()]
-        album_artist_values = [(aid, artist_ids[album.artist]) for album, aid in album_ids.items()]
-        album_song_values = [(album_ids[track.album], tid, track.track) for track, tid in track_ids.items()]
+    artist_values = [(aid, artist.name) for artist, aid in artist_ids.items()]
+    album_values = [(aid, album.name, album.date) for album, aid in album_ids.items()]
+    track_values = [(tid, track.duration, track.title, track.genre, track.date) for track, tid in track_ids.items()]
+    song_artist_values = [(tid, artist_ids[track.artist]) for track, tid in track_ids.items()]
+    album_artist_values = [(aid, artist_ids[album.artist]) for album, aid in album_ids.items()]
+    album_song_values = [(album_ids[track.album], tid, track.track) for track, tid in track_ids.items()]
 
-        def insert_many_statement(table: str, fields: List[str], n_records: int) -> sql.Composed:
-            fields_sql = sql.SQL(',').join(
-                map(sql.Identifier, fields)
-            )
-            single_value =  (
-                sql.SQL('(') +
-                sql.SQL(',').join(
-                    [sql.Placeholder()] * len(fields)
-                ) +
-                sql.SQL(')')
-            )
-            all_values = sql.SQL(',').join([single_value] * n_records)
-            return sql.SQL('INSERT INTO {} ({}) VALUES {}').format(
-                relation_prefix + sql.Identifier(table),
-                fields_sql,
-                all_values,
-            )
+    def insert_many_statement(table: str, fields: List[str], n_records: int) -> sql.Composed:
+        fields_sql = sql.SQL(',').join(
+            map(sql.Identifier, fields)
+        )
+        single_value =  (
+            sql.SQL('(') +
+            sql.SQL(',').join(
+                [sql.Placeholder()] * len(fields)
+            ) +
+            sql.SQL(')')
+        )
+        all_values = sql.SQL(',').join([single_value] * n_records)
+        return sql.SQL('INSERT INTO {} ({}) VALUES {}').format(
+            relation_prefix + sql.Identifier(table),
+            fields_sql,
+            all_values,
+        )
     \end{lstlisting}
 
     \lstset{
