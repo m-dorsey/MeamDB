@@ -914,6 +914,69 @@ Student 4 tts1848: Emi Simpson\\
     \subsection{SQL Statements}
     This section includes all the SQL statements that were written during Phase 4 of
     implementation.
+    
+    \subsubsection{SQL Indexes}
+
+    Due to our Play table being the largest, most queried table in
+    our database and its heavy use in providing analytics for users,
+    three indexes were created on our Play table to
+    provide faster access to the data upon query execution.
+
+    \lstset{
+    frame=tb,
+    language=SQL,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{sqlgray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{sqlgreen},
+    stringstyle=\color{sqlred},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+    }
+
+    \begin{lstlisting}
+    -- Simple hash index on sid used for generating top charts
+    CREATE INDEX ON p320_12.play (sid);
+
+    -- BTREE index on uid and timestamp created to order the
+    -- listing of plays by user
+    CREATE INDEX ON p320_12.play USING BTREE (uid, timestamp);
+
+    -- BTREE index on timestamp to hasten the selection of
+    -- plays within a certain time range when no user id can
+    -- be specified
+    CREATE INDEX ON p320_12.play USING BTREE (timestamp);
+    \end{lstlisting}
+
+    \noindent Despite not having a surplus of users being entered into our database,
+    two indexes were created to make searching for a user to follow much quicker.
+    With the uniqueness requirement of a user's email and username, both attributes
+    can be used within the application to search for another user.
+    \begin{lstlisting}
+    CREATE INDEX ON p320_12.user (email);
+    CREATE INDEX ON p320_12.user (username);
+    \end{lstlisting}
+
+    \noindent Finally, indexes were created for all of our relationship tables.
+    Indexing on some of the foreign keys within these relationship tables
+    helps speed up the process to search through the tables for song, artist,
+    or album relationships that match the criteria parameters specified.
+    \begin{lstlisting}
+    CREATE INDEX ON p320_12.album_artist (album_id);
+    CREATE INDEX ON p320_12.album_artist (artist_id);
+    CREATE INDEX ON p320_12.album_song (sid);
+    CREATE INDEX ON p320_12.album_song (album_id);
+    CREATE INDEX ON p320_12.song_artist (sid);
+    CREATE INDEX ON p320_12.song_collection (cid);
+    \end{lstlisting}
+
+
 
     \subsubsection{Selecting the top 10 artists for a user}
     \lstset{
@@ -936,12 +999,14 @@ Student 4 tts1848: Emi Simpson\\
     \begin{lstlisting}
     //select user's top 10 artists
     Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery("select distinct s.artist_id, count(s.artist_id) as total, a.name " +
+    ResultSet rs = stmt.executeQuery(
+        "select distinct s.artist_id, count(s.artist_id) as total, a.name " +
         "from p320_12.play p, p320_12.song_artist s, p320_12.artist a " +
         "where p.sid = s.sid and p.uid = " + uid + " and a.artist_id = s.artist_id " +
         "group by s.artist_id, a.name " +
         "order by total desc " +
-        "limit 10");
+        "limit 10"
+    );
     System.out.println("Artist Name | Total Artist Plays");
     while( rs.next() ){
         System.out.println(rs.getString("name") + " | " + rs.getInt("total"));
@@ -953,31 +1018,40 @@ Student 4 tts1848: Emi Simpson\\
     \begin{lstlisting}
     //getting the amount of people the user follows
     Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery("select count(f) as fol from p320_12.follower f where f.follower = '"+uid+"'" );
+    ResultSet rs = stmt.executeQuery(
+        "select count(f) as fol from p320_12.follower f " +
+        "where f.follower = '"+uid+"'"
+    );
     if( rs.next() ){
         followers = rs.getInt("fol");
     }
 
     //getting the amount of people followed by the user
     Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery("select count(f) as fol from p320_12.follower f where f.followed = '"+uid+"'" );
+    ResultSet rs = stmt.executeQuery(
+        "select count(f) as fol from p320_12.follower f " +
+        "where f.followed = '"+uid+"'"
+    );
     if( rs.next() ){
         followed = rs.getInt("fol");
     }
     \end{lstlisting}
 
-    \subsubsection{A minor edit to the view collections function to get the amount of collections a user has:}
+    \subsubsection{A minor edit to the view collections function to get the amount of collections of a user}
 
     \begin{lstlisting}
     Statement stmt3 = conn.createStatement();
-    ResultSet total = stmt3.executeQuery("select count(cid) as total from p320_12.collection where p320_12.collection.uid = " + uid );
+    ResultSet total = stmt3.executeQuery(
+        "select count(cid) as total from p320_12.collection " +
+        "where p320_12.collection.uid = " + uid
+    );
 
     if( total.next() && printing ) {
         System.out.println("Total collections: " + total.getInt("total"));
     }
     \end{lstlisting}
 
-   \subsubsection{Recommending the 5 most popular genres of the month for the user}
+   \subsubsection{Recommending a user's 5 most popular genres of the month}
 
     \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
@@ -993,11 +1067,11 @@ Student 4 tts1848: Emi Simpson\\
     \end{lstlisting}
 
 
-    \subsubsection{Recommending by 50 most popular songs of the month, 50 most popular songs among a friend, 50 most popular among a genre, and 50 most popular to the user}
+    \subsubsection{Recommending 50 most popular songs of the month, 50 most popular songs among a friend, 50 most popular among a genre, and 50 most popular songs for a user}
 
     \vspace{0.5cm}
     In the below statements, the question marks are replaced by user inputs that are collected
-    before the SQl is called to query the database.
+    before the SQL is called to query the database.
 
     \begin{lstlisting}
     switch(this) {
@@ -1048,7 +1122,7 @@ Student 4 tts1848: Emi Simpson\\
     }
     \end{lstlisting}
 
-    \subsubsection{Display a recommended songs info}
+    \subsubsection{Display a recommended song's info}
 
     \begin{lstlisting}
     PreparedStatement stmt = c.prepareStatement(
