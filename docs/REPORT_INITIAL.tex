@@ -980,12 +980,74 @@ Student 4 tts1848: Emi Simpson\\
     \section{Appendix}
     %\appendix
 
-    \subsection{SQL Statements}
     This section includes all the SQL statements that were written during Phase 4 of
     implementation.
-    
-    \subsubsection{SQL Indexes}
 
+    \subsection{SQL Data Analysis Queries}
+
+    \lstset{
+    frame=tb,
+    language=SQL,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{sqlgray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{sqlgreen},
+    stringstyle=\color{sqlred},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+    }
+
+    \noindent For our plays by song length data analysis, we queried the
+    database to return the amount of plays per song and the song duration.
+
+    \begin{lstlisting}
+        -- query query query
+    \end{lstlisting}
+
+    \noindent To compare an artist's average song length and their total amount
+    of albums, the database was queried using the following to return
+    a distinct artist's amount of albums while collecting the duration of all
+    the songs associated with them.
+    
+    \begin{lstlisting}
+    select a.artist_id, count(distinct a_a.album_id) as album_count, avg(s.length) as average_song_length
+    from p320_12.artist a, p320_12.album_artist a_a, p320_12.song s, p320_12.album_song a_s
+    where a.artist_id = a_a.artist_id
+    and s.length > 0
+    and s.sid = a_s.sid
+    and a_s.album_id = a_a.album_id
+    group by a.artist_id
+    order by album_count desc, average_song_length desc
+
+    \end{lstlisting}
+
+    \noindent The below query was used to get the average song length
+    of an album and the total number of songs in the respective album.
+
+    \begin{lstlisting}
+    select a.album_id, avg(s.length) as average_length, count(a_s) as total_songs
+    from p320_12.song s, p320_12.album_song a_s,
+        p320_12.album a
+    where s.sid = a_s.sid and a.album_id = a_s.album_id
+        and s.length > 0
+    group by a.album_id
+    order by total_songs asc, average_length asc
+    \end{lstlisting}
+
+
+
+
+
+
+
+    \subsection{SQL Indexes}
+    
     Due to our Play table being the largest, most queried table in
     our database and its heavy use in providing analytics for users,
     three indexes were created on our Play table to
@@ -1045,8 +1107,9 @@ Student 4 tts1848: Emi Simpson\\
     CREATE INDEX ON p320_12.song_collection (cid);
     \end{lstlisting}
 
-
-
+    
+    \subsection{SQL Recommendation Statements}
+    
     \subsubsection{Selecting the top 10 artists for a user}
     \lstset{
     frame=tb,
