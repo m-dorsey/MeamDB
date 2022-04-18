@@ -60,9 +60,9 @@ Student 4 tts1848: Emi Simpson\\
 
     \begin{center}
     \includegraphics[width=5.5in]{ER-Diagram/MeamDB ER Diagram.png}
-    \end{center}
     \caption{MeamDB ER Diagram showing entities and relationships}
     \label{ER Diagram}
+    \end{center}
 
     \vspace{0.5cm}
 
@@ -612,12 +612,16 @@ Student 4 tts1848: Emi Simpson\\
 
     \end{lstlisting}
 
-    \noindent Additional temporary tables are created (\lstinline{new_song_ids},
+    \subsubsection{Sample Insert Statements}
+
+    \noindent To insert our Last.fm data into our database,
+    more temporary tables are created (\lstinline{new_song_ids},
     \lstinline{new_album_ids}) to sequence the next available
     primary key for insertion to the artist, album and song entity
-    tables. Following the insertion into these three tables, more SQL
-    statements are used to insert the appropriate data into our relationship
-    tables to directly relate the entity types to one another.
+    tables. Following the insertion into these three tables,
+    additional SQL statements are used to insert
+    the appropriate data into our relationship tables that directly
+    relate the entity types to one another.
 
     \begin{lstlisting}
 
@@ -644,8 +648,8 @@ Student 4 tts1848: Emi Simpson\\
     ).execute();
     \end{lstlisting}
 
+
     
-    \subsubsection{Sample Insert Statements}
     \lstset{
     frame=tb,
     language=SQL,
@@ -663,22 +667,23 @@ Student 4 tts1848: Emi Simpson\\
     breakatwhitespace=true,
     tabsize=4
     }
-    \begin{lstlisting}
-    INSERT INTO p320_12.song(
-        sid, length, title, genre, release_date
-    ) VALUES (
-        66, 229, 'Love Somebody',
-        'Alternative r&b', 2012-01-01
-    )
+%    \begin{lstlisting}
+%    INSERT INTO p320_12.song(
+%        sid, length, title, genre, release_date
+%    ) VALUES (
+%        66, 229, 'Love Somebody',
+%        'Alternative r&b', 2012-01-01
+%    )
+%
+%    INSERT INTO p320_12.artist(artist_id, name)
+%    VALUES (51, 'Black Eyed Peas')
+%
+%    INSERT INTO p320_12.album(album_id, name, release_date)
+%    VALUE (28, 'Pretty. Odd.', 2018-03-21)
 
-    INSERT INTO p320_12.artist(artist_id, name)
-    VALUES (51, 'Black Eyed Peas')
+%    \end{lstlisting}
 
-    INSERT INTO p320_12.album(album_id, name, release_date)
-    VALUE (28, 'Pretty. Odd.', 2018-03-21)
-
-    \end{lstlisting}
-    All of the entity tables except User and Collection have already
+    \noindent All of the entity tables except User and Collection have already
     been assigned unique entity IDs before they were populated into
     the database. With the User and Collection entities, we altered the
     tables to include a serial primary key for the ID through a sequence
@@ -689,7 +694,7 @@ Student 4 tts1848: Emi Simpson\\
     create sequence collection_ids
     \end{lstlisting}
     Due to the sequences, the below insert statements do not need to specify
-    a uid or cid attributes because those fields will be auto incrementing
+    uid or cid attributes because those fields will be auto incrementing
     to the next ID value whenever new data is entered into the table.
     \begin{lstlisting}
     INSERT INTO p320_12.user (
@@ -945,9 +950,10 @@ Student 4 tts1848: Emi Simpson\\
     \section{Lessons Learned}
     Throughout the duration of this project, we learned how to delegate responsibilities,
     highlight our individual programming strengths, and communicate when obstacles arise
-    to ensure the entire team is on the same page and everyone feels supported. As we
-    learned about database design, development, and SQL, we researched additional topics
-    we would need to utilize such as sequences, ----------
+    to ensure the entire team is on the same page and supported. As we
+    learned about database design, development, and SQL, we researched additional resources
+    we would need to utilize such as serial sequences, optimal program efficiency, and different
+    techniques to use when implementing SQL within our Java program.
 
     \vspace{0.5cm}
 
@@ -962,28 +968,28 @@ Student 4 tts1848: Emi Simpson\\
 
     \noindent Additional obstacles we faced happened during Phase 4 of implementation during data analysis.
     When exporting our
-    data from the database, querying for the wanted data in PGAdmin before downloading was
+    data from the database, querying for the wanted data in the PGAdmin console before downloading was
     outstandingly faster than exporting all contents of our database into Excel and then
     using the Power Query Editor to match all of the entity relationships. Another issue
-    arose during our Last.fm song data upload to our database. We did not realize how much
-    metadata is tracked for one song and it was initially
+    arose during our Last.fm song data upload to our database due to us not realize how much
+    metadata is tracked for a song. It was initially
     difficult to parse through the data we wanted represented in our database versus what Last.fm
     uses for their services. Also, making the recommendation song algorithm proved to be
     difficult due to the nested SQL queries and researching different techniques to make sure
-    the algorithm is efficient.
+    the algorithm is able to extract data within a reasonable amount of time.
 
     \section{Resources}
 
     \subsection{Skiley}
-    Skiley is a web app that integrates with Spotify to allow users to view their listening history,
+    \underline{\href{https://skiley.net/}{Skiley}} is a web app that integrates with Spotify to allow users to view their listening history,
     create playlists based on recommendations, and export public or private playlists on the user's profile.
     We used Skiley as our first avenue to create an initial dataset that will be populated to our database.
     Using the playlist export feature, we collated CSV files with a song's track name, artist name, album name,
     track duration, track number, artist genre, and album release date.
 
     \subsection{Last.fm}
-    We used last.fm to populate more data into our database during implementation
-    in order to have a larger data set for analyzation. We linked Last.fm to our
+    We used \underline{\href{https://www.last.fm/}{Last.fm}} to populate more data into our database during implementation
+    in order to have a larger data set to analyze. We linked Last.fm to our
     personal spotify accounts so we could get the data about our song's play info
     (how many times have we played the song). From there, we implemented a feature
     that will allow Last.fm connection to our database to upload new music and fill
@@ -1006,8 +1012,8 @@ Student 4 tts1848: Emi Simpson\\
     \end{enumerate}
     From collation, the data was split into 3 initial Excel sheets that contained the entities Song,
     Artist, and Album as detailed in our MeamDB ER Diagram. Using Excel's Power Query Editor, unique
-    ids were created for every Song, Artist, and Album and queries were combined to match the relationships
-    for AlbumSong, AlbumArtist, and SongArtist via their unique ids.
+    IDs were created for every Song, Artist, and Album and queries were combined to match the relationships
+    for AlbumSong, AlbumArtist, and SongArtist via their unique IDs.
 
     \subsubsection{Data Visualization}
     After populating our database through our Java implementation, we downloaded our data as CSVs to
@@ -1044,7 +1050,9 @@ Student 4 tts1848: Emi Simpson\\
     database to return the amount of plays per song and the song duration.
 
     \begin{lstlisting}
-        -- query query query
+    select s.length, count(s.length) from p320_12.song s, p320_12.play p
+    where s.sid = p.sid and s.length > 0
+    group by s.length
     \end{lstlisting}
 
     \noindent To compare an artist's average song length and their total amount
@@ -1117,7 +1125,7 @@ Student 4 tts1848: Emi Simpson\\
     CREATE INDEX ON p320_12.play USING BTREE (uid, timestamp);
 
     -- BTREE index on timestamp to hasten the selection of
-    -- plays within a certain time range when no user id can
+    -- plays within a certain time range when no user ID can
     -- be specified
     CREATE INDEX ON p320_12.play USING BTREE (timestamp);
     \end{lstlisting}
@@ -1318,6 +1326,108 @@ Student 4 tts1848: Emi Simpson\\
     stmt.setInt(1, this.uid);
     stmt.setInt(2, this.selectedSong);
     stmt.execute();
+    \end{lstlisting}
+
+    \subsubsection{Song Recommendation Algorithm}
+
+    \lstset{
+    frame=tb,
+    language=SQL,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle=\ttfamily,
+    numbers=none,
+    numberstyle=\tiny\color{sqlgray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{sqlgreen},
+    stringstyle=\color{sqlred},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+    }
+
+    \begin{lstlisting}
+    CREATE OR REPLACE FUNCTION p320_12.similar (similar_to_sid INTEGER)
+	RETURNS TABLE(sid INTEGER, score NUMERIC)
+	LANGUAGE SQL
+	AS $$
+		WITH unnormalized AS (
+			WITH plays_by_users AS (
+				WITH play_timestamps AS (
+					SELECT
+						timestamp - INTERVAL '12 hours' AS mini,
+						timestamp + INTERVAL '12 hours' AS maxi,
+						uid
+					FROM p320_12.play
+					WHERE sid = similar_to_sid
+					-- TODO igore plays by the user recommendations are being made for
+				)
+				SELECT sid, uid, LOG(4, COUNT(timestamp)) + 1 AS score
+				FROM p320_12.play
+				WHERE play.sid != similar_to_sid
+				AND EXISTS (
+					SELECT 1 FROM play_timestamps AS ts
+					WHERE ts.uid = play.uid
+					AND play.timestamp BETWEEN ts.mini AND ts.maxi
+				)
+				GROUP BY uid, sid
+			)
+			SELECT sid, SUM(score) AS score
+			FROM plays_by_users
+			GROUP BY sid
+			LIMIT 50
+		),
+		score_extremes AS (
+			SELECT
+				MIN(score) as min_score,
+				MAX(score) AS max_score
+			FROM unnormalized
+		)
+		SELECT
+			sid,
+			CASE
+				WHEN min_score = max_score THEN 2
+				ELSE (score - min_score) / (max_score - min_score) * 2 + 1
+				END
+				AS score
+		FROM unnormalized, score_extremes
+	$$;
+
+CREATE OR REPLACE FUNCTION p320_12.recommendations (rec_for_uid INTEGER)
+	RETURNS TABLE(sid INTEGER, score NUMERIC)
+	LANGUAGE SQL
+	AS $$
+		WITH top_songs AS (
+			SELECT sid
+			FROM p320_12.play
+			WHERE uid = rec_for_uid
+			AND timestamp > current_timestamp - interval '1 month'
+			GROUP BY sid
+			ORDER BY COUNT(timestamp) DESC
+			LIMIT 20
+		)
+		SELECT similar_song.sid, SUM(score) AS score
+		FROM top_songs
+		JOIN p320_12.similar(top_songs.sid) AS similar_song ON 1 = 1
+		GROUP BY similar_song.sid
+		HAVING NOT EXISTS (
+			SELECT 1
+			FROM p320_12.play AS oplay
+			WHERE uid = rec_for_uid
+			AND oplay.sid = similar_song.sid
+			AND timestamp > current_timestamp - interval '1 month'
+		)
+		AND (
+			SELECT COUNT(timestamp)
+			FROM p320_12.play AS oplay
+			WHERE uid = rec_for_uid
+			AND oplay.sid = similar_song.sid
+		) < 2
+		ORDER BY score DESC
+	$$;
+
     \end{lstlisting}
 
 
