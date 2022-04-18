@@ -591,7 +591,7 @@ Student 4 tts1848: Emi Simpson\\
     }
 
     \noindent The additional data we uploaded via Last.fm into our database was inserted
-    by preparing and executing SQl statements in Java. Temporary tables
+    by preparing and executing SQL statements in Java. Temporary tables
     were created to obtain the required data from the Last.fm connection and safely
     insert it into our preexisting tables.
 
@@ -850,92 +850,129 @@ Student 4 tts1848: Emi Simpson\\
     \subsection{Hypothesis}
 
     Our objectives for data analysis are to study how the song length affects
-    if a song is played, the most popular song length, and if the most popular
-    song length has an impact on the song getting featured on the artist's album.
-    We expect to find the average song length to be around three to four minutes
-    due to most songs following the structure of two verses, three choruses,
-    a bridge, and possibly an outro. Additionally, since we represent any single
-    songs as albums, we expect to see many albums have an average song length of
-    also around three to four minutes.
+    a song's playability, its impact on the song getting featured on an album,
+    and if it leads to an increase or decrease in the total amount of songs on
+    the album. We predict that songs within the 180 second to 240 second range
+    (3 to 4 minutes)
+    would be the most popular due to most songs following the structure of two
+    verses, three choruses, a bridge, and possibly an outro. We also believe
+    that songs within our range are most likely to be featured on an artist's
+    album due to our representation of songs released as singles to be considered
+    an album as well. Lastly, we predict the relationship between average song
+    length and the number of songs on an album to indicate that the number of songs
+    in the albums should decrease as the average song length increases.
 
     \subsection{Data Preprocessing}
     Our data was extracted from our database using complex SQL queries and downloading
     the execution results to an Excel CSV file. From there, the data was cleaned to ensure
-    all songs had a length greater than 0. We also decided to keep our song representation in
-    seconds rather than convert it to minutes and seconds.
+    all songs had a length greater than 0 and the duration is represented as total seconds.
+    While we did discover many outliers within our data, we decided to consider them when
+    creating our charts because they represent the songs that do not quite fit into our
+    hypothesis.
 
 
 
     \subsection{Data Analytics \& Visualization}
 
     \begin{center}
-        \includegraphics[width=5.5in]{Graphs/Plays_SongLength.png}
+            \includegraphics[width=5.5in]{Graphs/Plays_SongLength.png}
+            \caption{Plays vs. Song Length}
+            \label{fig:Graph 1}
     \end{center}
-    \caption{Plays vs. Song Length}
-    \label{Plays vs. Song Length}
+
 
     \vspace{0.5cm}
 
-    \noindent This scatter plot compares the length of songs to the total amount of plays of
-    songs of that length. We noticed that there is a very large spike in the 200 to 300
-    second range which is about 3.5 to 5 minutes. This implies that the most
-    popular songs are within that range. Songs that are outside the 200 to 300 seconds
-    range are much less likely to be played by the user. The outliers seen past the 1300
-    second mark (21 minutes) suggests that these songs are rarely played because of their
-    length.
-%    To elaborate, given that songs that 200 to 300 seconds long are very
-%    common as opposed to the outliers that are 60 or 600 seconds long, there\s more
-%    songs in that range to play. With more songs to play, popularity of individual
-%    songs doesn\t necessarily line up with this scatter plots clear bell shape.
-%    The bell shape shows that the most played songs are within the 200 to 300 second
-%    range and, assuming the distribution of song lengths isn\’t
-%    inversely proportional to this bell shape, this allow implies, most likely with
-%    some accuracy, that the most played individual songs are within the 200 to 300
-%    second range.
+    \noindent This scatter plot compares the length of songs against the total amount
+    of plays for songs of that length. We noticed that there is a very large spike in
+    the 200 to 300 second range which converts to about 3.5 to 5 minutes. This implies
+    that the most popular songs are within that range meaning songs less than 3.5 minutes
+    or greater than 5 minutes are much less likely to be played by the user. The outliers
+    seen past the 1300 second mark (21 minutes) suggests that these songs are rarely played
+    because of their length.
 
     \begin{center}
-        \includegraphics[width=5.5in]{Graphs/AvgSongLen_ArtistAlbums.png}
+            \includegraphics[width=5.5in]{Graphs/AvgSongLen_ArtistAlbums.png}
+            \caption{Artist Average Song Length vs. Artist Average Amount of Albums}
+            \label{fig:Graph 2}
     \end{center}
-    \caption{Artist Average Song Length vs. Artist Average Amount of Albums}
-    \label{Artist Avg Song Len vs. Artist Avg Amt of Albums}
+
 
     \vspace{0.5cm}
 
-    \noindent Comparing the amount of albums of an artist against the average length
+    \noindent When comparing the amount of albums an artist has against the average length
     of all of their songs, we notice how many artists keep their songs within the
-    150 second to 400 second range which ranges from 2.5 to 6.5 minutes respectively.
+    200 second to 400 second range which ranges from 3.3 to 6.5 minutes respectively. This
+    indicated that the most successful artists keep their song lengths within the
+    200 to 400 second range to maximize their playability among users. The spikes we see
+    for artists who have only releases one or two albums show that the have more
+    variety when it comes to their song length whereas artists who have released more than
+    30 albums tend to have a closer average of song length.
 
 
     \begin{center}
-        \includegraphics[width=5.5in]{Graphs/AvgAlbumSongLen_by_NumSongs.png}
+            \includegraphics[width=5.5in]{Graphs/AvgAlbumSongLen_by_NumSongs.png}
+            \caption{Average Song Length of an Album vs. Number of Songs in the Album}
+            \label{fig:Graph 3}
     \end{center}
-    \caption{Average Song Length of an Album vs. Number of Songs in the Album}
-    \label{Avg Song Len of Album vs. Num Songs in Album}
+
+
 
     \vspace{0.5cm}
 
     \noindent This graph visualizes the consistency of an album's total duration
-    despite varies number of songs within the collection by analyzing the average
+    despite the varied number of songs within the collection by analyzing the average
     song length against the total number of songs in the album. We have discovered
     that there is a very small correlation between the comparisons due to the nearly
     horizontal line of best fit. Despite the small correlation, we can conclude that
-    very few albums have been made with song lengths that exceed 1200 seconds
+    very few albums have been made with song durations that exceed 1200 seconds
     (20 minutes).
 
 
     \subsection{Conclusions}
-    Use this section to explain the conclusions drawn from your data analysis.\\
-
     From our data analysis, we can conclude that the most popular song length is
-    between 200 and 400 seconds (3.5 to 6.5 minutes).
+    between 200 and 400 seconds (3.3 to 6.6 minutes). Our hypothesis was proven to
+    be incorrect as our predicted ending range (240 seconds) has close proximity to
+    our results starting range (200 seconds). In conclusion, artist's who keep their
+    average song lengths within the range of 200 to 400 seconds are more likely to have
+    an increased amount of playability among listeners. We also discovered that the
+    average song length and the number of songs within an album have no correlation
+    at all. Initially believing the relationship to be inversely proportional, the
+    left cluster shown in our Average Song Length of an Album vs. Number of Songs
+    in the Album table conveys that average song length does not govern the
+    amount of songs that may appear in an album.
 
     \section{Lessons Learned}
-    Use this section to describe the issues you faced during the project and how you overcame them. Also, describe what you learned during this effort; this section, like the others, plays a critical component in determining your final grade.\\
+    Throughout the duration of this project, we learned how to delegate responsibilities,
+    highlight our individual programming strengths, and communicate when obstacles arise
+    to ensure the entire team is on the same page and everyone feels supported. As we
+    learned about database design, development, and SQL, we researched additional topics
+    we would need to utilize such as sequences, ----------
 
+    \vspace{0.5cm}
+
+    \noindent One of our biggest initial obstacles before implementation of our program was finding
+    data to populate our database with. While there are publicily available song datasets,
+    most of them did not contain all of the information we needed like genre and release date
+    which would require us to manually search for this information ourselves. Luckily, the
+    Skiley website had all the attributes we needed and required minimal data cleaning to
+    ensure accurately represented data.
+
+    \vspace{0.5cm}
+
+    \noindent Additional obstacles we faced happened during Phase 4 of implementation during data analysis.
+    When exporting our
+    data from the database, querying for the wanted data in PGAdmin before downloading was
+    outstandingly faster than exporting all contents of our database into Excel and then
+    using the Power Query Editor to match all of the entity relationships. Another issue
+    arose during our Last.fm song data upload to our database. We did not realize how much
+    metadata is tracked for one song and it was initially
+    difficult to parse through the data we wanted represented in our database versus what Last.fm
+    uses for their services. Also, making the recommendation song algorithm proved to be
+    difficult due to the nested SQL queries and researching different techniques to make sure
+    the algorithm is efficient.
 
     \section{Resources}
-    Include in this section the resources you have used in your project beyond the normal code development
-    such as data sets or data analytic tools (i.e. Weka, R).
 
     \subsection{Skiley}
     Skiley is a web app that integrates with Spotify to allow users to view their listening history,
@@ -974,7 +1011,7 @@ Student 4 tts1848: Emi Simpson\\
 
     \subsubsection{Data Visualization}
     After populating our database through our Java implementation, we downloaded our data as CSVs to
-    analysize and make predictions. Excel was used to create graphs and charts to visualize our
+    analyze and make predictions. Excel was used to create graphs and charts to visualize our
     collections of data and draw conclusions from the results.
 
     \section{Appendix}
